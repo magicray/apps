@@ -20,18 +20,19 @@
 <script>
 var pre = React.createFactory('pre');
 var div = React.createFactory('div');
+var elm = React.createElement;
 
-var Pre = React.createClass({
+var JSONText = React.createClass({
     render: function() {
         return pre(null,
-                   JSON.stringify(this.props, null, 4));
+                   JSON.stringify(this.props.obj, null, 4));
     }
 });
 
 var App = React.createClass({
     render: function() {
         return div(null,
-                   React.createElement(Pre, this.props, null));
+                   elm(JSONText, {obj: this.props.coords}, null));
     }
 });
 
@@ -43,7 +44,7 @@ function app() {
             accuracy: pos.coords.accuracy};
 
         ReactDOM.render(
-            React.createElement(App, coords, null),
+            React.createElement(App, {coords: coords}, null),
             document.getElementById("app"));
     });
 }
