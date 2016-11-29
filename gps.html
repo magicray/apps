@@ -11,35 +11,7 @@
 <script src="https://cdn.jsdelivr.net/react/0.14.0-rc1/react.js"></script>
 <script src="https://cdn.jsdelivr.net/react/0.14.0-rc1/react-dom.js"></script>
 
-<script>
-var PRE = React.createFactory('pre');
-var DIV = React.createFactory('div');
-
-var JSONView = React.createFactory(React.createClass({
-    render: function() {
-        return PRE(null,
-                   JSON.stringify(this.props.obj, null, 4));
-    }
-}));
-
-var App = React.createFactory(React.createClass({
-    render: function() {
-        return DIV(null,
-                   JSONView({obj: this.props.coords}, null));
-    }
-}));
-
-function onload() {
-    navigator.geolocation.getCurrentPosition(function (pos) {
-        var coords = {
-            latitude: pos.coords.latitude,
-            longitude: pos.coords.longitude,
-            accuracy: pos.coords.accuracy};
-
-        ReactDOM.render(App({coords: coords}, null), document.body);
-    });
-}
-</script>
+<script src="gps.js"></script>
 
 <head>
   <meta name = "viewport"
@@ -49,5 +21,7 @@ function onload() {
                    user-scalable = no">
 </head>
 
-<body onload="onload()"><h1 align="center">Loading...</h1></body>
+<body onload="APP()">
+    <div id="app"><h1 align="center">Loading...</h1>
+</div></body>
 </html>
