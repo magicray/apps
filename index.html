@@ -11,7 +11,14 @@
 <script src="https://cdn.jsdelivr.net/react/0.14.0-rc1/react.js"></script>
 <script src="https://cdn.jsdelivr.net/react/0.14.0-rc1/react-dom.js"></script>
 
-<script src="gps.js"></script>
+<script>
+function onload() {
+    var app = window.location.search.split('?')[1];
+    var s = document.createElement('script');
+    s.setAttribute('src', app + '.js');
+    document.body.appendChild(s);
+}
+</script>
 
 <head>
   <meta name = "viewport"
@@ -21,7 +28,7 @@
                    user-scalable = no">
 </head>
 
-<body onload="APP()">
+<body onload="onload()">
     <div id="app"><h1 align="center">Loading...</h1>
 </div></body>
 </html>

@@ -1,4 +1,4 @@
-var APP = (function () {
+(function () {
 
 var PRE = React.createFactory('pre');
 var DIV = React.createFactory('div');
@@ -30,4 +30,4 @@ return function () {
     });
 }
 
-})();
+})()();
