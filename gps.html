@@ -1,60 +1,53 @@
 <!DOCTYPE html>
 <html>
 <link rel="stylesheet"
-      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
-      crossorigin="anonymous">
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 
 <link rel="stylesheet"
-      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
-      integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
-      crossorigin="anonymous">
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
 
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
-        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
-        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/react/0.14.0-rc1/react.js"></script>
 <script src="https://cdn.jsdelivr.net/react/0.14.0-rc1/react-dom.js"></script>
 
 <script>
-var pre = React.createFactory('pre');
-var div = React.createFactory('div');
-var elm = React.createElement;
+var PRE = React.createFactory('pre');
+var DIV = React.createFactory('div');
 
-var JSONText = React.createClass({
+var JSONView = React.createFactory(React.createClass({
     render: function() {
-        return pre(null,
+        return PRE(null,
                    JSON.stringify(this.props.obj, null, 4));
     }
-});
+}));
 
-var App = React.createClass({
+var App = React.createFactory(React.createClass({
     render: function() {
-        return div(null,
-                   elm(JSONText, {obj: this.props.coords}, null));
+        return DIV(null,
+                   JSONView({obj: this.props.coords}, null));
     }
-});
+}));
 
-function app() {
+function onload() {
     navigator.geolocation.getCurrentPosition(function (pos) {
         var coords = {
             latitude: pos.coords.latitude,
             longitude: pos.coords.longitude,
             accuracy: pos.coords.accuracy};
 
-        ReactDOM.render(
-            React.createElement(App, {coords: coords}, null),
-            document.getElementById("app"));
+        ReactDOM.render(App({coords: coords}, null), document.body);
     });
 }
 </script>
 
 <head>
-  <meta name = "viewport" content = "width = device-width, initial-scale = 1.0, maximum-scale = 1.0, user-scalable = no">
+  <meta name = "viewport"
+        content = "width = device-width,
+                   initial-scale = 1.0,
+                   maximum-scale = 1.0,
+                   user-scalable = no">
 </head>
 
-<body onload="app()">
-    <div id="app"></div>
-</body>
+<body onload="onload()"><h1 align="center">Loading...</h1></body>
 </html>
