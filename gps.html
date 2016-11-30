@@ -6,12 +6,12 @@
 <link rel="stylesheet"
       href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
 
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.2/lodash.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/redux/3.6.0/redux.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.0/react.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.0/react-dom.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-bootstrap/0.30.7/react-bootstrap.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/react/0.14.0-rc1/react.js"></script>
-<script src="https://cdn.jsdelivr.net/react/0.14.0-rc1/react-dom.js"></script>
-
-<script src="gps.js"></script>
 
 <head>
   <meta name = "viewport"
@@ -21,7 +21,15 @@
                    user-scalable = no">
 </head>
 
-<body onload="Application()">
-    <div id="app"><h1 align="center">Loading...</h1>
+<script src="gps.js"></script>
+
+<script>
+function onload() {
+    GPS(document.getElementById('gps'));
+}
+</script>
+
+<body onload="onload()">
+    <div id="gps"><h1 align="center">Loading...</h1>
 </div></body>
 </html>
