@@ -1,11 +1,4 @@
-var GPS = (function () {
-
-var PRE = React.createFactory('pre');
-var DIV = React.createFactory('div');
-var BUTTON = React.createFactory('button');
-
-
-return React.createFactory(React.createClass({
+var GPS =  React.createFactory(React.createClass({
     getInitialState: function() {
         return {val: this.props.val, loc: '', action: 'Show Location'}
     },
@@ -55,8 +48,12 @@ return React.createFactory(React.createClass({
     },
 
     render: function() {
+        var PRE = React.createFactory('pre');
+        var DIV = React.createFactory('div');
+        var BUTTON = React.createFactory('button');
+
         return DIV({className: 'col-sm-2'},
                    PRE(null, this.state.val),
                    BUTTON({onClick: this.onClick}, this.state.action));
-    }}));
-})();
+    }
+}));
