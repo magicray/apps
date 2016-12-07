@@ -23,13 +23,11 @@
 
 <script src="gps.js"></script>
 
-<script>
-function onload() {
-    GPS(document.getElementById('gps'));
-}
-</script>
-
-<body onload="onload()">
-    <div id="gps"><h1 align="center">Loading...</h1>
-</div></body>
+<body>
+	<div id="app"></div>
+    <script>
+	    ReactDOM.render(GPS({obj: 'Loading'}),
+	                    document.getElementById('app'));
+    </script>
+</body>
 </html>

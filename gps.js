@@ -1,27 +1,37 @@
-function GPS(root) {
+var GPS = (function () {
 
 var PRE = React.createFactory('pre');
 var DIV = React.createFactory('div');
+var BUTTON = React.createFactory('button');
 
 
-var JSONView = React.createFactory(React.createClass({
+return React.createFactory(React.createClass({
+    getInitialState: function() {
+        return {obj: this.props.obj}
+    },
+
+    componentDidMount: function () {
+        this.refresh();
+    },
+
+    refresh: function() {
+        var that = this;
+
+        that.setState({obj: 'Refreshing..'});
+
+        navigator.geolocation.getCurrentPosition(function (pos) {
+            that.setState({obj: {
+                latitude: pos.coords.latitude,
+                longitude: pos.coords.longitude,
+                accuracy: pos.coords.accuracy}});
+        });
+    },
+
     render: function() {
-        return PRE(null,
-                   JSON.stringify(this.props.obj, null, 4));
+        var text = JSON.stringify(this.state.obj, null, 4);
+
+        return DIV({className: 'col-sm-2'},
+                   PRE(null, text),
+                   BUTTON({onClick: this.refresh}, 'Refresh'));
     }}));
-
-var APP = React.createFactory(React.createClass({
-    render: function() {
-        return DIV(null,
-                   JSONView({obj: this.props.coords}, null));
-    }}));
-
-navigator.geolocation.getCurrentPosition(function (pos) {
-    var coords = {
-        latitude: pos.coords.latitude,
-        longitude: pos.coords.longitude,
-        accuracy: pos.coords.accuracy};
-
-    ReactDOM.render(APP({coords: coords}, null), root);
-});
-}
+})();
