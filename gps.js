@@ -18,7 +18,7 @@ return React.createFactory(React.createClass({
     showAddress: function() {
         var that = this;
 
-        var maps = 'http://maps.googleapis.com/maps/api/geocode/json?';
+        var maps = 'https://maps.googleapis.com/maps/api/geocode/json?';
         var latlng = this.state.loc.latitude + ',' + this.state.loc.longitude;
         var url = maps + 'latlng=' + latlng;
 
