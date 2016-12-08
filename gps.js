@@ -52,7 +52,7 @@ var GPS =  React.createFactory(React.createClass({
         var DIV = React.createFactory('div');
         var BUTTON = React.createFactory('button');
 
-        return DIV({className: 'col-sm-2'},
+        return DIV({className: 'col-sm-4'},
                    PRE(null, this.state.val),
                    BUTTON({onClick: this.onClick}, this.state.action));
     }
