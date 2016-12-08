@@ -25,27 +25,23 @@
 <script src="gps.js"></script>
 
 <body>
-    <div class="container">
-        <div class="row">
-            <div id="app1"></div> <div id="app2"></div> <div id="app3"></div>
-        </div>
-        <div class="row">
-            <div id="app4"></div> <div id="app5"></div> <div id="app6"></div>
-        </div>
-        <div class="row">
-            <div id="app7"></div> <div id="app8"></div> <div id="app9"></div>
-        </div>
-    </div>
 <script>
- ReactDOM.render(GPS({text: 'Loading'}), document.getElementById('app1'));
- ReactDOM.render(GPS({text: 'Loading'}), document.getElementById('app2'));
- ReactDOM.render(GPS({text: 'Loading'}), document.getElementById('app3'));
- ReactDOM.render(GPS({text: 'Loading'}), document.getElementById('app4'));
- ReactDOM.render(GPS({text: 'Loading'}), document.getElementById('app5'));
- ReactDOM.render(GPS({text: 'Loading'}), document.getElementById('app6'));
- ReactDOM.render(GPS({text: 'Loading'}), document.getElementById('app7'));
- ReactDOM.render(GPS({text: 'Loading'}), document.getElementById('app8'));
- ReactDOM.render(GPS({text: 'Loading'}), document.getElementById('app9'));
+    var DIV = React.createFactory('div');
+    
+    React.render(
+      DIV({className: 'container'},
+          DIV({className: 'row'},
+              GPS(),
+              GPS(),
+              GPS()),
+          DIV({className: 'row'},
+              GPS(),
+              GPS(),
+              GPS()),
+          DIV({className: 'row'},
+              GPS(),
+              GPS(),
+              GPS())), document.body);
 </script>
 </body>
 </html>
