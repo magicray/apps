@@ -12,9 +12,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.0/react-dom.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-bootstrap/0.30.7/react-bootstrap.min.js"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 
 <head>
+  <meta charset="utf-8">
   <meta name = "viewport"
         content = "width = device-width,
                    initial-scale = 1.0,
@@ -22,26 +23,18 @@
                    user-scalable = no">
 </head>
 
-<script src="gps.js"></script>
+<script type="text/babel" src="gps.js"></script>
 
 <body>
-<script>
-    var DIV = React.createFactory('div');
-    
-    React.render(
-      DIV({className: 'container'},
-          DIV({className: 'row'},
-              GPS(),
-              GPS(),
-              GPS()),
-          DIV({className: 'row'},
-              GPS(),
-              GPS(),
-              GPS()),
-          DIV({className: 'row'},
-              GPS(),
-              GPS(),
-              GPS())), document.body);
-</script>
+  <script type="text/babel">
+    ReactDOM.render(
+      <div className="container">
+
+          <div className="row"><GPS></GPS><GPS></GPS><GPS></GPS></div>
+          <div className="row"><GPS></GPS><GPS></GPS><GPS></GPS></div>
+          <div className="row"><GPS></GPS><GPS></GPS><GPS></GPS></div>
+
+      </div>, document.body);
+    </script>
 </body>
 </html>

@@ -1,43 +1,45 @@
-var GPS =  React.createFactory(React.createClass({
-    getInitialState: function() {
-        return {val: this.props.val, loc: '', action: 'Show Location'}
-    },
+class GPS extends React.Component {
+    constructor(props) {
+        super(props);
 
-    componentDidMount: function() {
+        this.state = {
+            val: this.props.val,
+            loc: '',
+            action: 'Show Location'
+        };
+    }
+
+    componentDidMount() {
         this.showLocation();
-    },
+    }
 
 
-    showAddress: function() {
-        var that = this;
-
+    showAddress() {
         var maps = 'https://maps.googleapis.com/maps/api/geocode/json?';
         var latlng = this.state.loc.latitude + ',' + this.state.loc.longitude;
         var url = maps + 'latlng=' + latlng;
 
-        axios.get(url).then(function(response) {
-            that.setState({action: 'Show Location',
+        axios.get(url).then((response) => {
+            this.setState({action: 'Show Location',
                 val: response.data.results[0]['formatted_address'].replace(
                     /, */g, '\n')});
         }).catch(function(error){
             alert(error);
         })
-    },
+    }
 
-    onClick: function() {
+    onClick(e) {
         if ('Show Location' === this.state.action) {
             this.showLocation();
         } else {
             this.showAddress();
         }
-    },
+    }
 
-    showLocation: function () {
-        var that = this;
-
-        navigator.geolocation.getCurrentPosition(function (pos) {
-            loc = pos.coords;
-            that.setState({
+    showLocation() {
+        navigator.geolocation.getCurrentPosition((pos) => {
+            var loc = pos.coords;
+            this.setState({
                 loc: loc,
                 action: 'Show Address',
                 val: JSON.stringify({
@@ -45,15 +47,18 @@ var GPS =  React.createFactory(React.createClass({
                     longitude: loc.longitude,
                     accuracy: loc.accuracy}, null, 4)});
         });
-    },
-
-    render: function() {
-        var PRE = React.createFactory('pre');
-        var DIV = React.createFactory('div');
-        var BUTTON = React.createFactory('button');
-
-        return DIV({className: 'col-sm-4'},
-                   PRE({style: {width: '250px', height: '200px'}}, this.state.val),
-                   BUTTON({onClick: this.onClick}, this.state.action));
     }
-}));
+
+    render() {
+        return (
+            <div className="col-sm-4">
+                <pre style={{'white-space': 'pre-wrap'}}>
+                    {this.state.val}
+                </pre>
+
+                <button onClick={(e) => this.onClick(e)}>
+                    {this.state.action}
+                </button>
+            </div>);
+    }
+}
