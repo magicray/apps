@@ -1,4 +1,4 @@
-class GPS extends React.Component {
+class GPSComponent extends React.Component {
     constructor(props) {
         super(props);
 
@@ -50,15 +50,14 @@ class GPS extends React.Component {
     }
 
     render() {
-        return (
-            <div className="col-sm-4">
-                <pre style={{'white-space': 'pre-wrap'}}>
-                    {this.state.val}
-                </pre>
+        let DIV = React.createFactory('div');
+        let PRE = React.createFactory('pre');
+        let BUTTON = React.createFactory('button');
 
-                <button onClick={(e) => this.onClick(e)}>
-                    {this.state.action}
-                </button>
-            </div>);
+        return DIV({className: 'col-sm-4'},
+                   PRE({style: {'white-space': 'pre-wrap'}}, this.state.val),
+                   BUTTON({onClick: e => this.onClick(e)}, this.state.action));
     }
 }
+
+GPS = React.createFactory(GPSComponent);

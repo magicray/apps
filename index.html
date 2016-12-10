@@ -12,7 +12,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.0/react-dom.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-bootstrap/0.30.7/react-bootstrap.min.js"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 
 <head>
   <meta charset="utf-8">
@@ -23,18 +22,20 @@
                    user-scalable = no">
 </head>
 
-<script type="text/babel" src="gps.js"></script>
+<script src="gps.js"></script>
 
 <body>
-  <script type="text/babel">
+  <script>
+    let DIV = React.createFactory('div');
+    
     ReactDOM.render(
-      <div className="container">
-
-          <div className="row"><GPS></GPS><GPS></GPS><GPS></GPS></div>
-          <div className="row"><GPS></GPS><GPS></GPS><GPS></GPS></div>
-          <div className="row"><GPS></GPS><GPS></GPS><GPS></GPS></div>
-
-      </div>, document.body);
+      DIV({className: 'container'},
+          DIV({className: 'row'},
+              GPS(), GPS(), GPS()),
+          DIV({className: 'row'},
+              GPS(), GPS(), GPS()),
+          DIV({className: 'row'},
+              GPS(), GPS(), GPS())), document.body);
     </script>
 </body>
 </html>
