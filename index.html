@@ -65,16 +65,27 @@ const HelloWorld = React.createFactory(class extends React.Component {
     }
 
     onEvent(e) {
-        if('click' === e.type) {
-            this.log('---------------------------');
-        }
-
         this.log(e.type);
 
-        if('change' === e.type) {
+        if(('change' === e.type) && (e.target.value)) {
             var msg = e.target.value;
         } else {
-            var msg = this.logs.slice(-25).join('\n');
+            let begin = -this.props.lines;
+            let end = this.logs.length;
+
+            if('wheel' == e.type) {
+                begin += e.deltaY;
+                end += e.deltaY;
+
+                if(begin > this.logs.length - this.props.lines) {
+                    begin = this.logs.length - this.props.lines;
+                }
+                if(end > this.logs.length) {
+                    end = this.logs.length;
+                }
+            }
+
+            var msg = this.logs.slice(begin, end).join('\n');
         }
 
         this.setState(prevState => {
@@ -87,30 +98,26 @@ const HelloWorld = React.createFactory(class extends React.Component {
     render() {
         const DIV = React.createFactory('div');
         const PRE = React.createFactory('pre');
-        const TEXT = React.createFactory('text');
         const INPUT = React.createFactory('input');
-        const BUTTON = React.createFactory('button');
 
         this.log('render()');
         return DIV({className: 'container'},
                    DIV({className: 'row'},
-                       DIV({className: 'col-sm-4'},
-                           TEXT({onMouseOver: e => this.onEvent(e)},
-                                'Hello, World!')),
-                       DIV({className: 'col-sm-4'},
-                           BUTTON({onClick: e => this.onEvent(e)}, 'Marker')),
-                       DIV({className: 'col-sm-4'},
-                           INPUT({onChange: e => this.onEvent(e)}))),
+                       DIV({className: 'col-sm-12'},
+                           INPUT({style: {width: "100%"},
+                                  onChange: e => this.onEvent(e)}))),
                    DIV({className: 'row'},
                        DIV({className: 'col-sm-12'},
-                           PRE(null, this.state.text))));
+                           PRE({onClick: e => this.onEvent(e),
+                                onWheel: e => this.onEvent(e)},
+                               this.state.text))));
     }
 });
 </script>
 
 <body>
     <script>
-        ReactDOM.render(HelloWorld(), document.body);
+        ReactDOM.render(HelloWorld({lines: 25}), document.body);
     </script>
 </body>
 </html>
