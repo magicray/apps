@@ -15,17 +15,17 @@ class GPSComponent extends React.Component {
 
 
     showAddress() {
-        var maps = 'https://maps.googleapis.com/maps/api/geocode/json?';
-        var latlng = this.state.loc.latitude + ',' + this.state.loc.longitude;
-        var url = maps + 'latlng=' + latlng;
+        let maps = 'https://maps.googleapis.com/maps/api/geocode/json?';
+        let latlng = this.state.loc.latitude + ',' + this.state.loc.longitude;
 
-        axios.get(url).then((response) => {
-            this.setState({action: 'Show Location',
-                val: response.data.results[0]['formatted_address'].replace(
-                    /, */g, '\n')});
-        }).catch(function(error){
-            alert(error);
-        })
+        fetch(`${maps}latlng=${latlng}`).then(response => {
+            response.json().then(d => {
+                this.setState({
+                    action: 'Show Location',
+                    val: d.results[0]['formatted_address'].replace(
+                        /, */g, '\n')});
+            });
+        });
     }
 
     onClick(e) {
