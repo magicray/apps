@@ -1,4 +1,4 @@
-class GPSComponent extends React.Component {
+const GPS = React.createFactory(class extends React.Component {
     constructor(props) {
         super(props);
 
@@ -15,8 +15,8 @@ class GPSComponent extends React.Component {
 
 
     showAddress() {
-        let maps = 'https://maps.googleapis.com/maps/api/geocode/json?';
-        let latlng = this.state.loc.latitude + ',' + this.state.loc.longitude;
+        const maps = 'https://maps.googleapis.com/maps/api/geocode/json?';
+        const latlng = this.state.loc.latitude + ',' + this.state.loc.longitude;
 
         fetch(`${maps}latlng=${latlng}`).then(response => {
             response.json().then(d => {
@@ -38,7 +38,7 @@ class GPSComponent extends React.Component {
 
     showLocation() {
         navigator.geolocation.getCurrentPosition((pos) => {
-            var loc = pos.coords;
+            const loc = pos.coords;
             this.setState({
                 loc: loc,
                 action: 'Show Address',
@@ -50,14 +50,13 @@ class GPSComponent extends React.Component {
     }
 
     render() {
-        let DIV = React.createFactory('div');
-        let PRE = React.createFactory('pre');
-        let BUTTON = React.createFactory('button');
+        const DIV = React.createFactory('div');
+        const PRE = React.createFactory('pre');
+        const BUTTON = React.createFactory('button');
 
         return DIV({className: 'col-sm-4'},
                    PRE({style: {'white-space': 'pre-wrap'}}, this.state.val),
                    BUTTON({onClick: e => this.onClick(e)}, this.state.action));
     }
-}
+});
 
-GPS = React.createFactory(GPSComponent);

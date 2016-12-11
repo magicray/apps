@@ -21,16 +21,96 @@
                    user-scalable = no">
 </head>
 
-<script src="gps.js"></script>
+<script>
+const HelloWorld = React.createFactory(class extends React.Component {
+    constructor(props) {
+        super(props);
 
-<body><script>
-    let DIV = React.createFactory('div');
+        this.count = 0
+        this.logs = [];
+        this.state = {
+            text: this.logs.join('\n')
+        };
+    }
     
-    ReactDOM.render(
-      DIV({className: 'container'},
-          DIV({className: 'row'}, GPS(), GPS(), GPS()),
-          DIV({className: 'row'}, GPS(), GPS(), GPS()),
-          DIV({className: 'row'}, GPS(), GPS(), GPS())
-          ), document.body);
-</script></body>
+    log(msg) {
+        let ts = Date.now()
+        this.count += 1;
+        this.logs.push(`${this.count} ${ts}: ${msg}`);
+    }
+
+    componentWillMount() { 
+        this.log('componentWillMount()');
+    }
+
+    componentWillUpdate(nextProps, nextState) {
+        this.log('componentWillUpdate()');
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        this.log('shouldComponentUpdate()');
+        return true;
+    }
+
+    componentWillReceiveProps(nextProps) {
+        this.log('componentWillReceiveProps()');
+    }
+
+    componentDidMount() {
+        this.log('componentDidMount()');
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        this.log('componentDidUpdate()');
+    }
+
+    onEvent(e) {
+        if('click' === e.type) {
+            this.log('---------------------------');
+        }
+
+        this.log(e.type);
+
+        if('change' === e.type) {
+            var msg = e.target.value;
+        } else {
+            var msg = this.logs.slice(-25).join('\n');
+        }
+
+        this.setState(prevState => {
+            return {
+                text: msg
+            }
+        });
+    }
+
+    render() {
+        const DIV = React.createFactory('div');
+        const PRE = React.createFactory('pre');
+        const TEXT = React.createFactory('text');
+        const INPUT = React.createFactory('input');
+        const BUTTON = React.createFactory('button');
+
+        this.log('render()');
+        return DIV({className: 'container'},
+                   DIV({className: 'row'},
+                       DIV({className: 'col-sm-4'},
+                           TEXT({onMouseOver: e => this.onEvent(e)},
+                                'Hello, World!')),
+                       DIV({className: 'col-sm-4'},
+                           BUTTON({onClick: e => this.onEvent(e)}, 'Marker')),
+                       DIV({className: 'col-sm-4'},
+                           INPUT({onChange: e => this.onEvent(e)}))),
+                   DIV({className: 'row'},
+                       DIV({className: 'col-sm-12'},
+                           PRE(null, this.state.text))));
+    }
+});
+</script>
+
+<body>
+    <script>
+        ReactDOM.render(HelloWorld(), document.body);
+    </script>
+</body>
 </html>
