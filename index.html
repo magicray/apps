@@ -22,7 +22,7 @@
 </head>
 
 <script>
-const HelloWorld = React.createFactory(class extends React.Component {
+class HelloWorld extends React.Component {
     constructor(props) {
         super(props);
 
@@ -32,7 +32,7 @@ const HelloWorld = React.createFactory(class extends React.Component {
             text: this.logs.join('\n')
         };
     }
-    
+
     log(msg) {
         let ts = Date.now()
         this.count += 1;
@@ -96,29 +96,35 @@ const HelloWorld = React.createFactory(class extends React.Component {
     }
 
     render() {
-        const DIV = React.createFactory('div');
-        const PRE = React.createFactory('pre');
-        const INPUT = React.createFactory('input');
+        const div = React.DOM.div;
+        const pre = React.DOM.pre;
+        const input = React.DOM.input;
 
         this.log('render()');
 
-        return DIV({className: 'container'},
-                   DIV({className: 'row'},
-                       DIV({className: 'col-sm-12'},
-                           INPUT({style: {width: "100%"},
+        return div({className: 'container'},
+                   div({className: 'row'},
+                       div({className: 'col-sm-12'},
+                           input({style: {width: "100%"},
                                   onChange: e => this.onEvent(e)}))),
-                   DIV({className: 'row'},
-                       DIV({className: 'col-sm-12'},
-                           PRE({onClick: e => this.onEvent(e),
+                   div({className: 'row'},
+                       div({className: 'col-sm-12'},
+                           pre({onClick: e => this.onEvent(e),
                                 onWheel: e => this.onEvent(e)},
                                this.state.text))));
     }
-});
+}
+
+HelloWorld.defaultProps = {
+    lines: 25
+}
 </script>
 
 <body>
     <script>
-        ReactDOM.render(HelloWorld({lines: 25}), document.body);
+        const HW = React.createFactory(HelloWorld);
+
+        ReactDOM.render(HW(), document.body);
     </script>
 </body>
 </html>
