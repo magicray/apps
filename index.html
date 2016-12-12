@@ -22,7 +22,7 @@
 </head>
 
 <script>
-class HelloWorld extends React.Component {
+const HelloWorld = React.createFactory(class extends React.Component {
     constructor(props) {
         super(props);
 
@@ -31,6 +31,8 @@ class HelloWorld extends React.Component {
         this.state = {
             text: this.logs.join('\n')
         };
+
+        this.lines = this.props.lines || 25;
     }
 
     log(msg) {
@@ -70,15 +72,15 @@ class HelloWorld extends React.Component {
         if(('change' === e.type) && (e.target.value)) {
             var msg = e.target.value;
         } else {
-            let begin = -this.props.lines;
+            let begin = -this.lines;
             let end = this.logs.length;
 
             if('wheel' == e.type) {
                 begin += e.deltaY;
                 end += e.deltaY;
 
-                if(begin > this.logs.length - this.props.lines) {
-                    begin = this.logs.length - this.props.lines;
+                if(begin > this.logs.length - this.lines) {
+                    begin = this.logs.length - this.lines;
                 }
                 if(end > this.logs.length) {
                     end = this.logs.length;
@@ -103,28 +105,21 @@ class HelloWorld extends React.Component {
         this.log('render()');
 
         return div({className: 'container'},
-                   div({className: 'row'},
-                       div({className: 'col-sm-12'},
-                           input({style: {width: "100%"},
-                                  onChange: e => this.onEvent(e)}))),
-                   div({className: 'row'},
-                       div({className: 'col-sm-12'},
-                           pre({onClick: e => this.onEvent(e),
-                                onWheel: e => this.onEvent(e)},
-                               this.state.text))));
+                    div({className: 'row'},
+                        input({className: 'col-sm-12',
+                               onChange: e => this.onEvent(e)})),
+                    div({className: 'row'},
+                        pre({className: 'col-sm-12',
+                             onClick: e => this.onEvent(e),
+                             onWheel: e => this.onEvent(e)},
+                            this.state.text)));
     }
-}
-
-HelloWorld.defaultProps = {
-    lines: 25
-}
+});
 </script>
 
 <body>
     <script>
-        const HW = React.createFactory(HelloWorld);
-
-        ReactDOM.render(HW(), document.body);
+        ReactDOM.render(HelloWorld(), document.body);
     </script>
 </body>
 </html>
