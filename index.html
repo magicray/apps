@@ -25,104 +25,90 @@
 </head>
 
 <script>
-const HelloWorld = React.createFactory(class extends React.Component {
+function InputBox(props) {
+    return React.DOM.input({
+        style: {width: "100%"},
+        onChange: e => props.onChange(e.target.value)})
+}
+
+function TextDisplay(props) {
+    return React.DOM.pre({
+
+    }, props.text)
+}
+
+class Container extends React.Component {
     constructor(props) {
         super(props);
-
-        this.count = 0
-        this.logs = [];
-        this.state = {
-            text: this.logs.join('\n')
-        };
-
-        this.lines = this.props.lines || 25;
     }
 
-    log(msg) {
-        let ts = Date.now()
-        this.count += 1;
-        this.logs.push(`${this.count} ${ts}: ${msg}`);
-    }
-
-    componentWillMount() { 
-        this.log('componentWillMount()');
-    }
-
-    componentWillUpdate(nextProps, nextState) {
-        this.log('componentWillUpdate()');
-    }
-
-    shouldComponentUpdate(nextProps, nextState) {
-        this.log('shouldComponentUpdate()');
-        return true;
-    }
-
-    componentWillReceiveProps(nextProps) {
-        this.log('componentWillReceiveProps()');
-    }
-
-    componentDidMount() {
-        this.log('componentDidMount()');
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-        this.log('componentDidUpdate()');
-    }
 
     onEvent(e) {
-        this.log(e.type);
-
-        if(('change' === e.type) && (e.target.value)) {
-            var msg = e.target.value;
-        } else {
-            let begin = -this.lines;
-            let end = this.logs.length;
-
-            if('wheel' == e.type) {
-                begin += e.deltaY;
-                end += e.deltaY;
-
-                if(begin > this.logs.length - this.lines) {
-                    begin = this.logs.length - this.lines;
-                }
-                if(end > this.logs.length) {
-                    end = this.logs.length;
-                }
-            }
-
-            var msg = this.logs.slice(begin, end).join('\n');
-        }
-
-        this.setState(prevState => {
-            return {
-                text: msg
-            }
-        });
+        this.props.onTextChange(e.target.value)
     }
 
     render() {
-        const div = React.DOM.div;
-        const pre = React.DOM.pre;
-        const input = React.DOM.input;
-
-        this.log('render()');
+        const {div, pre} = React.DOM
+        const input = React.createFactory(InputBox)
+        const display = React.createFactory(TextDisplay)
 
         return div({className: 'container'},
                     div({className: 'row'},
-                        input({className: 'col-sm-12',
-                               onChange: e => this.onEvent(e)})),
+                        div({className: 'col-sm-12'},
+                            input({onChange: this.props.onTextChange}))),
                     div({className: 'row'},
-                        pre({className: 'col-sm-12',
-                             onClick: e => this.onEvent(e),
-                             onWheel: e => this.onEvent(e)},
-                            this.state.text)));
+                        div({className: 'col-sm-12'},
+                            display({text: this.props.text}))))
     }
-});
+}
+
+Container.APP = () => {
+
+    propsMap = (state) => { return {
+        text: state.text
+    }}
+
+
+    actionsMap = (dispatch) => { return {
+        onTextChange: Redux.bindActionCreators(updateText, dispatch)
+    }}
+
+    return React.createFactory(
+        ReactRedux.connect(propsMap, actionsMap)(Container))
+}
+</script>
+
+<script>
+function reducer(state, action) {
+    switch(action.type) {
+        case 'UPDATE_TEXT':
+            return {text: action.text}
+            break
+    }
+    return state
+}
+
+function updateText(text) {
+    return {
+        type: 'UPDATE_TEXT',
+        text
+    }
+}
 </script>
 
 <body>
     <script>
-        ReactDOM.render(HelloWorld(), document.body);
+        const store = Redux.createStore(reducer, {
+            text: 'initial text'
+        })
+
+        const Provider = React.createFactory(ReactRedux.Provider)
+        const APP = Container.APP()
+
+        ReactDOM.render(
+            Provider({store: store},
+                APP({})),
+            document.body)
     </script>
 </body>
 </html>
