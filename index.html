@@ -32,19 +32,18 @@ function InputBox(props) {
 }
 
 function TextDisplay(props) {
-    return React.DOM.pre({
-
-    }, props.text)
+    return React.DOM.pre(null, props.text)
 }
 
-class Container extends React.Component {
+function ToggleButton(props) {
+    return React.DOM.button({
+        style: {width: "100%"},
+        onClick: props.onClick}, 'Toggle')
+}
+
+class HelloWorld extends React.Component {
     constructor(props) {
-        super(props);
-    }
-
-
-    onEvent(e) {
-        this.props.onTextChange(e.target.value)
+        super(props)
     }
 
     render() {
@@ -55,26 +54,18 @@ class Container extends React.Component {
         return div({className: 'container'},
                     div({className: 'row'},
                         div({className: 'col-sm-12'},
-                            input({onChange: this.props.onTextChange}))),
+                            input({onChange: this.props.updateText}))),
                     div({className: 'row'},
                         div({className: 'col-sm-12'},
-                            display({text: this.props.text}))))
+                            display({text: this.props.text}))),
+                    div({className: 'row'},
+                        div({className: 'col-sm-12'},
+                        ToggleButton({onClick: this.props.toggleText}))))
     }
-}
 
-Container.APP = () => {
-
-    propsMap = (state) => { return {
-        text: state.text
+    static propsMap(state) { return {
+        text: state.flag? state.text.split('').reverse().join(''): state.text
     }}
-
-
-    actionsMap = (dispatch) => { return {
-        onTextChange: Redux.bindActionCreators(updateText, dispatch)
-    }}
-
-    return React.createFactory(
-        ReactRedux.connect(propsMap, actionsMap)(Container))
 }
 </script>
 
@@ -82,33 +73,67 @@ Container.APP = () => {
 function reducer(state, action) {
     switch(action.type) {
         case 'UPDATE_TEXT':
-            return {text: action.text}
-            break
+            return {text: action.text, flag: state.flag}
+
+        case 'TOGGLE_TEXT':
+            return {text: state.text, flag: state.flag? false: true}
     }
     return state
 }
 
-function updateText(text) {
-    return {
-        type: 'UPDATE_TEXT',
-        text
+class Actions {
+    static updateText(text) {
+        return {
+            type: 'UPDATE_TEXT',
+            text
+        }
     }
+
+    static toggleText() {
+        return {
+            type: 'TOGGLE_TEXT'
+        }
+    }
+}
+</script>
+
+<script>
+function makeContainer(component) {
+    const actions = {}
+    Object.getOwnPropertyNames(Actions).map((f) => {
+        if('function' == typeof(Actions[f])) {
+            actions[f] = Actions[f]
+        }
+    })
+
+    return React.createFactory(
+        ReactRedux.connect(component.propsMap, actions)(component))
+}
+
+function renderApp(initStore, reducer, rootContainer) {
+    const store = Redux.createStore(reducer, initStore)
+
+    ReactDOM.render(React.createElement(
+            ReactRedux.Provider,
+            {store: store},
+            rootContainer),
+        document.body)
 }
 </script>
 
 <body>
     <script>
-        const store = Redux.createStore(reducer, {
-            text: 'initial text'
-        })
+        const store = {
+            text: 'initial text',
+            flag: false
+        }
 
-        const Provider = React.createFactory(ReactRedux.Provider)
-        const APP = Container.APP()
+        const APP = makeContainer(HelloWorld)
+        const div = React.DOM.div
 
-        ReactDOM.render(
-            Provider({store: store},
-                APP({})),
-            document.body)
+        renderApp(store, reducer,
+            div({},
+                APP()))
     </script>
 </body>
 </html>
