@@ -6,13 +6,15 @@
 <link rel="stylesheet"
       href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.2/lodash.min.js"></script>
+<script src="https://cdn.jsdelivr.net/lodash/4.17.2/lodash.min.js"></script>
+<script src="https://cdn.jsdelivr.net/immutable.js/3.8.1/immutable.min.js"</script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-bootstrap/0.30.7/react-bootstrap.min.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.1/react.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.1/react-dom.min.js"></script>
+<script src="https://cdn.jsdelivr.net/react/15.4.1/react.min.js"></script>
+<script src="https://cdn.jsdelivr.net/react/15.4.1/react-dom.min.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/redux/3.6.0/redux.min.js"></script>
+<script src="https://cdn.jsdelivr.net/redux/3.6.0/redux.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-redux/4.4.6/react-redux.min.js"></script>
 
 <head>
@@ -81,15 +83,15 @@ function reducer(state, action) {
     return state
 }
 
-class Actions {
-    static updateText(text) {
+const Actions = {
+    updateText(text) {
         return {
             type: 'UPDATE_TEXT',
             text
         }
-    }
+    },
 
-    static toggleText() {
+    toggleText() {
         return {
             type: 'TOGGLE_TEXT'
         }
@@ -99,41 +101,24 @@ class Actions {
 
 <script>
 function makeContainer(component) {
-    const actions = {}
-    Object.getOwnPropertyNames(Actions).map((f) => {
-        if('function' == typeof(Actions[f])) {
-            actions[f] = Actions[f]
-        }
-    })
-
     return React.createFactory(
-        ReactRedux.connect(component.propsMap, actions)(component))
-}
-
-function renderApp(initStore, reducer, rootContainer) {
-    const store = Redux.createStore(reducer, initStore)
-
-    ReactDOM.render(React.createElement(
-            ReactRedux.Provider,
-            {store: store},
-            rootContainer),
-        document.body)
+        ReactRedux.connect(component.propsMap, Actions)(component))
 }
 </script>
 
 <body>
     <script>
-        const store = {
+        const store = Redux.createStore(reducer, {
             text: 'initial text',
             flag: false
-        }
+        })
 
         const APP = makeContainer(HelloWorld)
-        const div = React.DOM.div
 
-        renderApp(store, reducer,
-            div({},
-                APP()))
+        ReactDOM.render(
+            React.createElement(ReactRedux.Provider, {store: store},
+                APP()),
+            document.body)
     </script>
 </body>
 </html>
