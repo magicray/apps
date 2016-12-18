@@ -27,47 +27,35 @@
 </head>
 
 <script>
-function InputBox(props) {
-    return React.DOM.input({
-        style: {width: "100%"},
-        onChange: e => props.onChange(e.target.value)})
-}
+function Page1View(props) {
+        const onClick = e => props.onClick()
+        const onChange = e => props.onChange(e.target.value)
 
-function TextDisplay(props) {
-    return React.DOM.pre(null, props.text)
-}
-
-function ToggleButton(props) {
-    return React.DOM.button({
-        style: {width: "100%"},
-        onClick: props.onClick}, 'Toggle')
-}
-
-class HelloWorld extends React.Component {
-    constructor(props) {
-        super(props)
-    }
-
-    render() {
-        const {div, pre} = React.DOM
-        const input = React.createFactory(InputBox)
-        const display = React.createFactory(TextDisplay)
+        const {div, pre, input, button} = React.DOM
 
         return div({className: 'container'},
                     div({className: 'row'},
-                        div({className: 'col-sm-12'},
-                            input({onChange: this.props.updateText}))),
+                        input({className: 'col-sm-12',
+                               style: {width: "100%"},
+                               onChange: onChange})),
                     div({className: 'row'},
-                        div({className: 'col-sm-12'},
-                            display({text: this.props.text}))),
+                        pre({className: 'col-sm-12'}, props.text)),
                     div({className: 'row'},
-                        div({className: 'col-sm-12'},
-                        ToggleButton({onClick: this.props.toggleText}))))
-    }
+                        button({className: 'col-sm-12',
+                                onClick: onClick}, 'Toggle')))
+}
 
-    static propsMap(state) { return {
-        text: state.flag? state.text.split('').reverse().join(''): state.text
-    }}
+class Page1Container extends React.Component {
+    render() {
+        let {text, flag} = this.props.state
+        text = flag? text.split('').reverse().join(''): text
+
+        return Page1View({
+            text: text,
+            onChange: this.props.updateText,
+            onClick: this.props.toggleText
+        })
+    }
 }
 </script>
 
@@ -84,25 +72,21 @@ function reducer(state, action) {
 }
 
 const Actions = {
-    updateText(text) {
-        return {
-            type: 'UPDATE_TEXT',
-            text
-        }
-    },
+    updateText(text) { return {
+        type: 'UPDATE_TEXT',
+        text
+    }},
 
-    toggleText() {
-        return {
-            type: 'TOGGLE_TEXT'
-        }
-    }
+    toggleText() { return {
+        type: 'TOGGLE_TEXT'
+    }}
 }
 </script>
 
 <script>
-function makeContainer(component) {
+function connect(component) {
     return React.createFactory(
-        ReactRedux.connect(component.propsMap, Actions)(component))
+        ReactRedux.connect((state) => {return {state: state}}, Actions)             (component))
 }
 </script>
 
@@ -113,7 +97,7 @@ function makeContainer(component) {
             flag: false
         })
 
-        const APP = makeContainer(HelloWorld)
+        const APP = connect(Page1Container)
 
         ReactDOM.render(
             React.createElement(ReactRedux.Provider, {store: store},
