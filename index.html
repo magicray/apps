@@ -13,6 +13,7 @@
 
 <script src="https://cdn.jsdelivr.net/react/15.4.1/react.min.js"></script>
 <script src="https://cdn.jsdelivr.net/react/15.4.1/react-dom.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-router/4.0.0-0/react-router.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/redux/3.6.0/redux.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-redux/4.4.6/react-redux.min.js"></script>
@@ -57,6 +58,12 @@ class Page1Container extends React.Component {
         })
     }
 }
+
+function Page2View(props) {
+    const {pre} = React.DOM
+
+    return pre(null, 'Page2')
+}
 </script>
 
 <script>
@@ -91,18 +98,40 @@ function connect(component) {
 </script>
 
 <body>
+    <div id="app"></div>
+
     <script>
+    function MenuView(props) {
+        const {div, ul, li, hr} = React.DOM
+        const Link = React.createFactory(ReactRouter.Link)
+        const Match = React.createFactory(ReactRouter.Match)
+        const Router = React.createFactory(ReactRouter.BrowserRouter)
+
+        return Router(null,
+                ul({className: 'nav navbar-nav navbar-inverse'},
+                    li(null, Link({to: '/1'}, 'Page1')),
+                    li(null, Link({to: '/2'}, 'Page2'))),
+                Match({pattern: '/1', component: props.page1}),
+                Match({pattern: '/2', component: props.page2}))
+    }
         const store = Redux.createStore(reducer, {
             text: 'initial text',
             flag: false
         })
 
-        const APP = connect(Page1Container)
+        const Menu = React.createFactory(MenuView)
+        const PAGE1 = connect(Page1Container)
+        const PAGE2 = React.createFactory(Page2View)
+
+        const {div} = React.DOM
+        const Provider = React.createFactory(ReactRedux.Provider)
 
         ReactDOM.render(
-            React.createElement(ReactRedux.Provider, {store: store},
-                APP()),
-            document.body)
+            Provider({store:store},
+                div({className: 'container'},
+                    div({className: 'row'},
+                        MenuView({page1: PAGE1, page2: PAGE2})))),
+            document.getElementById('app'))
     </script>
 </body>
 </html>
