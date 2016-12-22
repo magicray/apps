@@ -26,40 +26,45 @@
 
 <script>
 function Page1View(props) {
-        const onClick = e => props.onClick()
-        const onChange = e => props.onChange(e.target.value)
+    const onClick = e => props.onClick()
+    const onChange = e => props.onChange(e.target.value)
 
-        const {div, pre, input, button} = React.DOM
+    const r = ReactBootstrap
+    const e = React.createElement
 
-        return div({className: 'container'},
-                    div({className: 'row'},
-                        input({className: 'col-sm-12',
-                               style: {width: "100%"},
-                               onChange: onChange})),
-                    div({className: 'row'},
-                        pre({className: 'col-sm-12'}, props.text)),
-                    div({className: 'row'},
-                        button({className: 'col-sm-12',
-                                onClick: onClick}, 'Toggle')))
+    return e(r.Grid, null, 
+        e(r.Form, null,
+            e(r.FormGroup, null,
+                e(r.FormControl, {
+                    type: 'text',
+                    value: props.text,
+                    onChange}),
+                e(r.ControlLabel, null, props.processed),
+                e(r.ButtonToolbar, null,
+                    e(r.Button, {bsStyle: 'primary', onClick}, 'Toggle')))))
 }
 
-class Page1Container extends React.Component {
+class Page1 extends React.Component {
     render() {
         let {text, flag} = this.props.state
-        text = flag? text.split('').reverse().join(''): text
 
         return Page1View({
-            text: text,
+            text,
+            processed: flag? text.split('').reverse().join(''): text,
             onChange: this.props.updateText,
             onClick: this.props.toggleText
         })
     }
 }
 
-function Page2View(props) {
+function Page2(props) {
     const {pre} = React.DOM
 
     return pre(null, 'Page2')
+}
+
+function HomePage(props) {
+    return React.DOM.h1(null, 'React Tutorial')
 }
 </script>
 
@@ -103,41 +108,33 @@ function connect(component) {
             flag: false
         })
 
-        const PAGE1 = connect(Page1Container)
-        const PAGE2 = React.createFactory(Page2View)
+        const e = React.createElement
 
-        const {div, ul, li} = React.DOM
-        const Provider = React.createFactory(ReactRedux.Provider)
+        const rr = ReactRouter
+        const bs = ReactBootstrap
 
-        const Link = React.createFactory(ReactRouter.Link)
-        const Match = React.createFactory(ReactRouter.Match)
-        const BrowserRouter = React.createFactory(ReactRouter.BrowserRouter)
+        const app = e(ReactRouter.BrowserRouter, null,
+            e(bs.Navbar, {inverse: true, collapseOnSelect: true},
+                e(bs.Navbar.Header, null,
+                    e(bs.Navbar.Brand, null,
+                        e(rr.Link, {to: '/'}, 'SuperApp')),
+                    e(bs.Navbar.Toggle)),
+                e(bs.Navbar.Collapse, null,
+                    e(bs.Nav, null,
+                        e(bs.NavItem, {eventKey:1},
+                            e(rr.Link, {to: '/1'}, 'Page1')),
+                        e(bs.NavItem, {eventKey:2},
+                            e(rr.Link, {to: '/2'}, 'Page2'))))),
 
-        const Nav = React.createFactory(ReactBootstrap.Nav)
-        const Navbar = React.createFactory(ReactBootstrap.Navbar)
-        const NavItem = React.createFactory(ReactBootstrap.NavItem)
+            e(rr.Match, {pattern: '/',
+                         exactly: true, 
+                         component: connect(HomePage)}),
 
-        const Brand = React.createFactory(ReactBootstrap.Navbar.Brand)
-        const Header = React.createFactory(ReactBootstrap.Navbar.Header)
-        const Toggle = React.createFactory(ReactBootstrap.Navbar.Toggle)
-        const Collapse = React.createFactory(ReactBootstrap.Navbar.Collapse)
-
-
-        const routes = BrowserRouter(null,
-            Navbar({inverse: true, collapseOnSelect: true},
-                Header(null,
-                    Brand(null, 'Hello'),
-                    Toggle()),
-                Collapse(null,
-                    Nav(null,
-                        NavItem({eventKey:1}, Link({to: '/1'}, 'Page1')),
-                        NavItem({eventKey:2}, Link({to: '/2'}, 'Page2'))))),
-
-            Match({pattern: '/1', component: PAGE1}),
-            Match({pattern: '/2', component: PAGE2}))
+            e(rr.Match, {pattern: '/1', component: connect(Page1)}),
+            e(rr.Match, {pattern: '/2', component: connect(Page2)}))
 
         ReactDOM.render(
-            Provider({store:store}, routes),
+            e(ReactRedux.Provider, {store:store}, app),
             document.getElementById('app'))
     </script>
 </body>
