@@ -6,13 +6,10 @@
 <link rel="stylesheet"
       href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
 
-<script src="https://cdn.jsdelivr.net/lodash/4.17.2/lodash.min.js"></script>
-<script src="https://cdn.jsdelivr.net/immutable.js/3.8.1/immutable.min.js"</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-bootstrap/0.30.7/react-bootstrap.min.js"></script>
-
 <script src="https://cdn.jsdelivr.net/react/15.4.1/react.min.js"></script>
 <script src="https://cdn.jsdelivr.net/react/15.4.1/react-dom.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-bootstrap/0.30.7/react-bootstrap.min.js"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-router/4.0.0-0/react-router.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/redux/3.6.0/redux.min.js"></script>
@@ -116,14 +113,31 @@ function connect(component) {
         const Match = React.createFactory(ReactRouter.Match)
         const BrowserRouter = React.createFactory(ReactRouter.BrowserRouter)
 
+        const Nav = React.createFactory(ReactBootstrap.Nav)
+        const Navbar = React.createFactory(ReactBootstrap.Navbar)
+        const NavItem = React.createFactory(ReactBootstrap.NavItem)
+
+        const Brand = React.createFactory(ReactBootstrap.Navbar.Brand)
+        const Header = React.createFactory(ReactBootstrap.Navbar.Header)
+        const Toggle = React.createFactory(ReactBootstrap.Navbar.Toggle)
+        const Collapse = React.createFactory(ReactBootstrap.Navbar.Collapse)
+
+
+        const routes = BrowserRouter(null,
+            Navbar({inverse: true, collapseOnSelect: true},
+                Header(null,
+                    Brand(null, 'Hello'),
+                    Toggle()),
+                Collapse(null,
+                    Nav(null,
+                        NavItem({eventKey:1}, Link({to: '/1'}, 'Page1')),
+                        NavItem({eventKey:2}, Link({to: '/2'}, 'Page2'))))),
+
+            Match({pattern: '/1', component: PAGE1}),
+            Match({pattern: '/2', component: PAGE2}))
+
         ReactDOM.render(
-            Provider({store:store},
-                BrowserRouter(null,
-                    ul({className: 'nav navbar-nav navbar-inverse'},
-                        li(null, Link({to: '/1'}, 'Page1')),
-                        li(null, Link({to: '/2'}, 'Page2'))),
-                    Match({pattern: '/1', component: PAGE1}),
-                    Match({pattern: '/2', component: PAGE2}))),
+            Provider({store:store}, routes),
             document.getElementById('app'))
     </script>
 </body>
