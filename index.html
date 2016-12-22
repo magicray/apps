@@ -101,36 +101,29 @@ function connect(component) {
     <div id="app"></div>
 
     <script>
-    function MenuView(props) {
-        const {div, ul, li, hr} = React.DOM
-        const Link = React.createFactory(ReactRouter.Link)
-        const Match = React.createFactory(ReactRouter.Match)
-        const Router = React.createFactory(ReactRouter.BrowserRouter)
-
-        return Router(null,
-                ul({className: 'nav navbar-nav navbar-inverse'},
-                    li(null, Link({to: '/1'}, 'Page1')),
-                    li(null, Link({to: '/2'}, 'Page2'))),
-                Match({pattern: '/1', component: props.page1}),
-                Match({pattern: '/2', component: props.page2}))
-    }
         const store = Redux.createStore(reducer, {
             text: 'initial text',
             flag: false
         })
 
-        const Menu = React.createFactory(MenuView)
         const PAGE1 = connect(Page1Container)
         const PAGE2 = React.createFactory(Page2View)
 
-        const {div} = React.DOM
+        const {div, ul, li} = React.DOM
         const Provider = React.createFactory(ReactRedux.Provider)
+
+        const Link = React.createFactory(ReactRouter.Link)
+        const Match = React.createFactory(ReactRouter.Match)
+        const BrowserRouter = React.createFactory(ReactRouter.BrowserRouter)
 
         ReactDOM.render(
             Provider({store:store},
-                div({className: 'container'},
-                    div({className: 'row'},
-                        MenuView({page1: PAGE1, page2: PAGE2})))),
+                BrowserRouter(null,
+                    ul({className: 'nav navbar-nav navbar-inverse'},
+                        li(null, Link({to: '/1'}, 'Page1')),
+                        li(null, Link({to: '/2'}, 'Page2'))),
+                    Match({pattern: '/1', component: PAGE1}),
+                    Match({pattern: '/2', component: PAGE2}))),
             document.getElementById('app'))
     </script>
 </body>
