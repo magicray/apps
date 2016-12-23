@@ -25,30 +25,29 @@
 </head>
 
 <script>
-function Page1View(props) {
+function TextReverseView(props) {
     const onClick = e => props.onClick()
     const onChange = e => props.onChange(e.target.value)
 
     const r = ReactBootstrap
     const e = React.createElement
 
-    return e(r.Grid, null, 
-        e(r.Form, null,
-            e(r.FormGroup, null,
-                e(r.FormControl, {
-                    type: 'text',
-                    value: props.text,
-                    onChange}),
-                e(r.ControlLabel, null, props.processed),
-                e(r.ButtonToolbar, null,
-                    e(r.Button, {bsStyle: 'primary', onClick}, 'Toggle')))))
+    return e(r.Form, null,
+        e(r.FormGroup, null,
+            e(r.FormControl, {
+                type: 'text',
+                value: props.text,
+                onChange}),
+            e(r.ControlLabel, null, props.processed),
+            e(r.ButtonToolbar, null,
+                e(r.Button, {bsStyle: 'primary', onClick}, 'Toggle'))))
 }
 
-class Page1 extends React.Component {
+class TextReverse extends React.Component {
     render() {
         let {text, flag} = this.props.state
 
-        return Page1View({
+        return TextReverseView({
             text,
             processed: flag? text.split('').reverse().join(''): text,
             onChange: this.props.updateText,
@@ -57,14 +56,14 @@ class Page1 extends React.Component {
     }
 }
 
-function Page2(props) {
-    const {pre} = React.DOM
-
-    return pre(null, 'Page2')
+function Props(props) {
+    return React.DOM.pre(null, JSON.stringify(props, null, 4))
 }
 
 function HomePage(props) {
-    return React.DOM.h1(null, 'React Tutorial')
+    return React.createElement(
+        ReactBootstrap.Jumbotron, null,
+            React.DOM.h1(null, 'React Examples'))
 }
 </script>
 
@@ -95,7 +94,22 @@ const Actions = {
 <script>
 function connect(component) {
     return React.createFactory(
-        ReactRedux.connect((state) => {return {state: state}}, Actions)             (component))
+        ReactRedux.connect((state) => {return {state: state}}, Actions)(
+            component))
+}
+
+function wrap(component) {
+    const b = ReactBootstrap
+    const e = React.createElement
+
+    function ConnectedComponent(props) {
+        return e(b.Grid, null,
+                    e(b.Row, null,
+                        e(b.Col, {sm:12},
+                            e(component, props))))
+    }
+
+    return connect(ConnectedComponent)
 }
 </script>
 
@@ -114,24 +128,24 @@ function connect(component) {
         const bs = ReactBootstrap
 
         const app = e(ReactRouter.BrowserRouter, null,
-            e(bs.Navbar, {inverse: true, collapseOnSelect: true},
+            e(bs.Navbar, {collapseOnSelect: true},
                 e(bs.Navbar.Header, null,
                     e(bs.Navbar.Brand, null,
-                        e(rr.Link, {to: '/'}, 'SuperApp')),
+                        e(rr.Link, {to: '/'}, 'Learn React')),
                     e(bs.Navbar.Toggle)),
                 e(bs.Navbar.Collapse, null,
                     e(bs.Nav, null,
-                        e(bs.NavItem, {eventKey:1},
-                            e(rr.Link, {to: '/1'}, 'Page1')),
-                        e(bs.NavItem, {eventKey:2},
-                            e(rr.Link, {to: '/2'}, 'Page2'))))),
+                        e(bs.NavItem, null,
+                            e(rr.Link, {to: '1'}, 'Text Reverse')),
+                        e(bs.NavItem, null,
+                            e(rr.Link, {to: '2'}, 'Show Props'))))),
 
             e(rr.Match, {pattern: '/',
                          exactly: true, 
-                         component: connect(HomePage)}),
+                         component: wrap(HomePage)}),
 
-            e(rr.Match, {pattern: '/1', component: connect(Page1)}),
-            e(rr.Match, {pattern: '/2', component: connect(Page2)}))
+            e(rr.Match, {pattern: '1', component: wrap(TextReverse)}),
+            e(rr.Match, {pattern: '2', component: wrap(Props)}))
 
         ReactDOM.render(
             e(ReactRedux.Provider, {store:store}, app),
