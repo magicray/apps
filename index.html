@@ -63,7 +63,7 @@ function Props(props) {
 function HomePage(props) {
     return React.createElement(
         ReactBootstrap.Jumbotron, null,
-            React.DOM.h1(null, 'React Examples'))
+            React.DOM.h1(null, 'React Application'))
 }
 </script>
 
@@ -136,16 +136,16 @@ function wrap(component) {
                 e(bs.Navbar.Collapse, null,
                     e(bs.Nav, null,
                         e(bs.NavItem, null,
-                            e(rr.Link, {to: '1'}, 'Text Reverse')),
+                            e(rr.Link, {to: '/1'}, 'Text Reverse')),
                         e(bs.NavItem, null,
-                            e(rr.Link, {to: '2'}, 'Show Props'))))),
+                            e(rr.Link, {to: '/2'}, 'Show Props'))))),
 
             e(rr.Match, {pattern: '/',
                          exactly: true, 
                          component: wrap(HomePage)}),
 
-            e(rr.Match, {pattern: '1', component: wrap(TextReverse)}),
-            e(rr.Match, {pattern: '2', component: wrap(Props)}))
+            e(rr.Match, {pattern: '/1', component: wrap(TextReverse)}),
+            e(rr.Match, {pattern: '/2', component: wrap(Props)}))
 
         ReactDOM.render(
             e(ReactRedux.Provider, {store:store}, app),
