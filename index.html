@@ -33,7 +33,7 @@ class Log extends React.Component {
         }
 
         return React.DOM.div(null,
-                    React.DOM.pre(null, Log.logs.join('\n')),
+                    React.DOM.pre(null, Log.logs.slice(-25).join('\n')),
                     React.createElement(ReactBootstrap.Button,
                         {onClick}, 'RESET'))
     }
@@ -48,10 +48,14 @@ class Log extends React.Component {
         const s = d.getSeconds()
         const msec = d.getMilliseconds()
 
-        Log.logs.push(`${y}${mon}${day}.${h}${min}${s}.${msec} : ${msg}`)
+        Log.count += 1
+        const c = Log.count
+
+        Log.logs.push(`${c}.${y}${mon}${day}.${h}${min}${s}.${msec} : ${msg}`)
     }
 }
 Log.logs = []
+Log.count = 0
 
 class GPS extends React.Component {
     constructor(props) {
