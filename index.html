@@ -25,7 +25,69 @@
 </head>
 
 <script>
-function TextReverseView(props) {
+class GPS extends React.Component {
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            val: this.props.val,
+            loc: '',
+            action: 'Show Location'
+        }
+    }
+
+    componentDidMount() {
+        navigator.geolocation.getCurrentPosition((pos) => {
+            const loc = pos.coords;
+            this.setState({
+                loc: loc,
+                action: 'Show Address',
+                val: JSON.stringify({
+                    latitude: loc.latitude,
+                    longitude: loc.longitude,
+                    accuracy: loc.accuracy}, null, 4)});
+        });
+    }
+
+    showAddress() {
+        const maps = 'https://maps.googleapis.com/maps/api/geocode/json?';
+        const latlng = this.state.loc.latitude + ',' + this.state.loc.longitude;
+
+        fetch(`${maps}latlng=${latlng}`).then(response => {
+            response.json().then(d => {
+                this.setState({
+                    action: 'Show Location',
+                    val: d.results[0]['formatted_address'].replace(
+                        /, */g, '\n')});
+            });
+        });
+    }
+
+    render() {
+        const onClick = (e) => {
+            if ('Show Address' === this.state.action) {
+                this.showAddress()
+            } else {
+                this.setState({
+                    loc: this.state.loc,
+                    action: 'Show Address',
+                    val: JSON.stringify({
+                        latitude: this.state.loc.latitude,
+                        longitude: this.state.loc.longitude,
+                        accuracy: this.state.loc.accuracy}, null, 4)});
+            }
+        }
+
+        const r = ReactBootstrap
+        const e = React.createElement
+
+        return React.DOM.div(null,
+                    React.DOM.pre(null, this.state.val),
+                    e(r.Button, {onClick}, this.state.action))
+    }
+}
+
+function TextView(props) {
     const onClick = e => props.onClick()
     const onChange = e => props.onChange(e.target.value)
 
@@ -43,11 +105,11 @@ function TextReverseView(props) {
                 e(r.Button, {bsStyle: 'primary', onClick}, 'Toggle'))))
 }
 
-class TextReverse extends React.Component {
+class Text extends React.Component {
     render() {
         let {text, flag} = this.props.state
 
-        return TextReverseView({
+        return TextView({
             text,
             processed: flag? text.split('').reverse().join(''): text,
             onChange: this.props.updateText,
@@ -60,7 +122,7 @@ function Props(props) {
     return React.DOM.pre(null, JSON.stringify(props, null, 4))
 }
 
-function HomePage(props) {
+function Home(props) {
     return React.createElement(
         ReactBootstrap.Jumbotron, null,
             React.DOM.h1(null, 'React Application'))
@@ -136,16 +198,19 @@ function wrap(component) {
                 e(bs.Navbar.Collapse, null,
                     e(bs.Nav, null,
                         e(bs.NavItem, null,
-                            e(rr.Link, {to: '/1'}, 'Text Reverse')),
+                            e(rr.Link, {to: '/1'}, 'Text')),
                         e(bs.NavItem, null,
-                            e(rr.Link, {to: '/2'}, 'Show Props'))))),
+                            e(rr.Link, {to: '/2'}, 'Props')),
+                        e(bs.NavItem, null,
+                            e(rr.Link, {to: '/3'}, 'GPS'))))),
 
             e(rr.Match, {pattern: '/',
                          exactly: true, 
-                         component: wrap(HomePage)}),
+                         component: wrap(Home)}),
 
-            e(rr.Match, {pattern: '/1', component: wrap(TextReverse)}),
-            e(rr.Match, {pattern: '/2', component: wrap(Props)}))
+            e(rr.Match, {pattern: '/1', component: wrap(Text)}),
+            e(rr.Match, {pattern: '/2', component: wrap(Props)}),
+            e(rr.Match, {pattern: '/3', component: wrap(GPS)}))
 
         ReactDOM.render(
             e(ReactRedux.Provider, {store:store}, app),
