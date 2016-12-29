@@ -7,7 +7,9 @@ JS="react/15.4.1/react                            \
     react-bootstrap/0.30.7/react-bootstrap        \
     react-router/4.0.0-0/react-router             \
     redux/3.6.0/redux                             \
-    react-redux/4.4.6/react-redux"
+    react-redux/4.4.6/react-redux                 \
+    lodash/4.17.3/loadash                         \
+    immutable/3.8.1/immutable"
 
 rm -f min.js js external.min.js external.js
 
