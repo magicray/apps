@@ -17,8 +17,7 @@
 class Router extends React.Component {
     constructor(props) {
         super(props)
-
-        console.log('Router.constructor()')
+        console.log('Router.constructor: This should happen only once')
     }
 
     componentDidMount() {
@@ -31,25 +30,23 @@ class Router extends React.Component {
 
         const component = this.props.routes[parser.hash] || this.props.default
 
-        const b = ReactBootstrap
-        const e = React.createElement
-
         function ConnectedComponent(props) {
+            const b = ReactBootstrap
+            const e = React.createElement
+
             return e(b.Grid, null,
                         e(b.Row, null,
                             e(b.Col, {sm:12},
                                 e(component, props))))
         }
 
-        const store = this.props.store
-
-        const factory = React.createFactory(
-            ReactRedux.connect(
-                (state) => { return {state: state}},
-                Actions)(ConnectedComponent))
-
-        return React.createElement(ReactRedux.Provider, {store: store},
-            factory(null))
+        return React.createElement(
+            ReactRedux.Provider,
+            {store: this.props.store},
+            React.createFactory(
+                ReactRedux.connect(
+                    (state) => {return {state: state}},
+                    Actions)(ConnectedComponent))(null))
     }
 }
 </script>
