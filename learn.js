@@ -189,25 +189,22 @@ function app() {
         flag: false
     })
 
-    return div(null,
+    const nav = React.createFactory(ReactBootstrap.Nav)
+    const navitem = React.createFactory(ReactBootstrap.NavItem)
+
+    return e(bs.Grid, null, e(bs.Row, null,
         e(bs.Navbar, {collapseOnSelect: true},
             e(bs.Navbar.Header, null,
                 e(bs.Navbar.Brand, null,
                     a({href: '#', onClick}, 'Learn React')),
                 e(bs.Navbar.Toggle)),
             e(bs.Navbar.Collapse, null,
-                e(bs.Nav, null,
-                    e(bs.NavItem, null,
-                        a({href: '#/text', onClick}, 'Text')),
-                    e(bs.NavItem, null,
-                        a({href: '#/props', onClick}, 'Props')),
-                    e(bs.NavItem, null,
-                        a({href: '#/gps', onClick}, 'GPS'))),
-                e(bs.Nav, {pullRight: true},
-                    e(bs.NavItem, null,
-                        a({href: '#/logs', onClick}, 'Logs'))))),
-        e(bs.Grid, null,
-            e(bs.Row, null,
-                e(bs.Col, {sm: 12},
-                    e(Router, {default: Home, routes, store})))))
+                nav({bsStyle: 'tabs'},
+                    navitem({href: '#/text', onClick}, 'Text'),
+                    navitem({href: '#/props', onClick}, 'Props'),
+                    navitem({href: '#/gps', onClick}, 'GPS')),
+                nav({bsStyle: 'tabs', pullRight: true},
+                    navitem({href: '#/logs', onClick}, 'Logs'))))),
+        e(bs.Row, null,
+            e(Router, {default: Home, routes, store})))
 }
