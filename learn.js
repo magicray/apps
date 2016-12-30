@@ -206,5 +206,8 @@ function app() {
                 e(bs.Nav, {pullRight: true},
                     e(bs.NavItem, null,
                         a({href: '#/logs', onClick}, 'Logs'))))),
-        e(Router, {default: Home, routes, store}))
+        e(bs.Grid, null,
+            e(bs.Row, null,
+                e(bs.Col, {sm: 12},
+                    e(Router, {default: Home, routes, store})))))
 }

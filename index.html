@@ -28,25 +28,18 @@ class Router extends React.Component {
         const parser = document.createElement('a')
         parser.href = window.location
 
-        const component = this.props.routes[parser.hash] || this.props.default
-
-        function ConnectedComponent(props) {
-            const b = ReactBootstrap
-            const e = React.createElement
-
-            return e(b.Grid, null,
-                        e(b.Row, null,
-                            e(b.Col, {sm:12},
-                                e(component, props))))
-        }
+        const ConnectedComponent = props =>
+            React.createElement(
+                this.props.routes[parser.hash] || this.props.default,
+                props)
 
         return React.createElement(
             ReactRedux.Provider,
             {store: this.props.store},
             React.createFactory(
                 ReactRedux.connect(
-                    (state) => {return {state: state}},
-                    Actions)(ConnectedComponent))(null))
+                    (state) => {return {state: state}}, Actions)(
+                        ConnectedComponent))(null))
     }
 }
 </script>
