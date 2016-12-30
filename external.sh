@@ -5,7 +5,6 @@ CDN=https://cdnjs.cloudflare.com/ajax/libs
 JS="react/15.4.1/react                            \
     react/15.4.1/react-dom                        \
     react-bootstrap/0.30.7/react-bootstrap        \
-    react-router/4.0.0-0/react-router             \
     redux/3.6.0/redux                             \
     react-redux/4.4.6/react-redux                 \
     lodash.js/4.17.3/lodash                       \
