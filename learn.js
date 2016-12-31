@@ -156,7 +156,7 @@ function reducer(state, action) {
     return state
 }
 
-const Actions = {
+const actions = {
     updateText(text) { return {
         type: 'UPDATE_TEXT',
         text
@@ -168,9 +168,6 @@ const Actions = {
 }
 
 function app() {
-    const b = ReactBootstrap
-    const e = React.createElement
-
     const routes = {
         'Text': Text,
         'Props': Props,
@@ -183,13 +180,10 @@ function app() {
         flag: false
     }
 
-    return e(b.Grid, null,
-            e(b.Row, null,
-                e(Menu, {title: 'Learn React', routes})),
-            e(b.Row, null,
-                e(Router, {default: Home,
-                           routes,
-                           state,
-                           reducer,
-                           actions: Actions})))
+    const e = React.createElement
+
+    return React.DOM.div(null,
+            e(Menu, {title: 'Learn React', routes}),
+            e(ReactBootstrap.Grid, null,
+                e(Router, {default: Home, routes, state, reducer, actions})))
 }
