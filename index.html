@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 
-<link rel="stylesheet" href="/apps/bootstrap.css">
-<script src="/apps/external.min.js"></script>
+<link rel="stylesheet" href="/apps/2a31dca112f26923b51676cb764c58d5.css">
+<script src="/apps/2846cf268980f90defa2e4050cc69dc5.js"></script>
 
 <head>
   <meta charset="utf-8">
@@ -14,9 +14,33 @@
 </head>
 
 <script>
+function Menu(props) {
+    const b = ReactBootstrap
+    const e = React.createElement
+
+    const onClick = e => window.location = e.target
+
+    return e(b.Navbar, {collapseOnSelect: true},
+            e(b.Navbar.Header, null,
+                e(b.Navbar.Brand, null,
+                    React.DOM.a({href: '#', onClick}, props.title)),
+                e(b.Navbar.Toggle)),
+            e(b.Navbar.Collapse, null,
+                e(b.Nav, {bsStyle: 'tabs'},
+                    _.map(props.routes, (v, k) =>
+                        e(b.NavItem, {href: `#/${k}`, onClick}, k)))))
+}
+
 class Router extends React.Component {
     constructor(props) {
         super(props)
+
+        this.connector = ReactRedux.connect(
+            (state) => {return {state: state}},
+            this.props.actions)
+
+        this.store = Redux.createStore(this.props.reducer, this.props.state)
+
         console.log('Router.constructor: This should happen only once')
     }
 
@@ -28,18 +52,13 @@ class Router extends React.Component {
         const parser = document.createElement('a')
         parser.href = window.location
 
-        const ConnectedComponent = props =>
-            React.createElement(
-                this.props.routes[parser.hash] || this.props.default,
-                props)
+        const key = _.trim(parser.hash, '#/')
+        const component = this.props.routes[key] || this.props.default
 
         return React.createElement(
             ReactRedux.Provider,
-            {store: this.props.store},
-            React.createFactory(
-                ReactRedux.connect(
-                    (state) => {return {state: state}}, Actions)(
-                        ConnectedComponent))(null))
+            {store: this.store},
+            React.createElement(this.connector(component)))
     }
 }
 </script>

@@ -168,43 +168,28 @@ const Actions = {
 }
 
 function app() {
+    const b = ReactBootstrap
     const e = React.createElement
 
-    const bs = ReactBootstrap
-    const {a, div} = React.DOM
-
-    const onClick = (e) => {
-        window.location = e.target
-    }
-
     const routes = {
-        '#/text': Text,
-        '#/props': Props,
-        '#/gps': GPS,
-        '#/logs': Log
+        'Text': Text,
+        'Props': Props,
+        'GPS': GPS,
+        'Logs': Log
     }
 
-    const store = Redux.createStore(reducer, {
+    const state = {
         text: 'initial text',
         flag: false
-    })
+    }
 
-    const nav = React.createFactory(ReactBootstrap.Nav)
-    const navitem = React.createFactory(ReactBootstrap.NavItem)
-
-    return e(bs.Grid, null, e(bs.Row, null,
-        e(bs.Navbar, {collapseOnSelect: true},
-            e(bs.Navbar.Header, null,
-                e(bs.Navbar.Brand, null,
-                    a({href: '#', onClick}, 'Learn React')),
-                e(bs.Navbar.Toggle)),
-            e(bs.Navbar.Collapse, null,
-                nav({bsStyle: 'tabs'},
-                    navitem({href: '#/text', onClick}, 'Text'),
-                    navitem({href: '#/props', onClick}, 'Props'),
-                    navitem({href: '#/gps', onClick}, 'GPS')),
-                nav({bsStyle: 'tabs', pullRight: true},
-                    navitem({href: '#/logs', onClick}, 'Logs'))))),
-        e(bs.Row, null,
-            e(Router, {default: Home, routes, store})))
+    return e(b.Grid, null,
+            e(b.Row, null,
+                e(Menu, {title: 'Learn React', routes})),
+            e(b.Row, null,
+                e(Router, {default: Home,
+                           routes,
+                           state,
+                           reducer,
+                           actions: Actions})))
 }
