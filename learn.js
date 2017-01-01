@@ -145,44 +145,42 @@ function Home(props) {
             React.DOM.h1(null, 'React Application'))
 }
 
-App.reducers['UPDATE_TEXT'] = (state, action) => {
+App.r.updateText = (state, action) => {
     state.text = action.text
 }
 
-App.reducers['TOGGLE_TEXT'] = (state, action) => {
+App.r.toggleText = (state, action) => {
     state.flag = state.flag? false: true
 }
 
-App.actions.updateText = (text) => { return {
-    type: 'UPDATE_TEXT',
+App.a.updateText = (text) => { return {
+    type: 'updateText',
     text
 }}
 
-App.actions.toggleText = () => { return {
-    type: 'TOGGLE_TEXT'
+App.a.toggleText = () => { return {
+    type: 'toggleText'
 }}
 
-function Menu(props) {
+App.pages = function() {
     const b = ReactBootstrap
     const e = React.createElement
 
-    const onClick = e => window.location = e.target
+    function Menu(props) {
+        const onClick = e => window.location = e.target
 
-    return e(b.Navbar, {collapseOnSelect: true},
-            e(b.Navbar.Header, null,
-                e(b.Navbar.Brand, null,
-                    React.DOM.a({href: '#', onClick}, 'Learn React')),
-                e(b.Navbar.Toggle)),
-            e(b.Navbar.Collapse, null,
-                e(b.Nav, {bsStyle: 'tabs'},
-                    e(b.NavItem, {href: '#/Text', onClick}, 'Text'),
-                    e(b.NavItem, {href: '#/Props', onClick}, 'Props'),
-                    e(b.NavItem, {href: '#/GPS', onClick}, 'GPS'),
-                    e(b.NavItem, {href: '#/Logs', onClick}, 'Logs'))))
-}
-
-App.app = () => {
-    const e = React.createElement
+        return e(b.Navbar, {collapseOnSelect: true},
+                e(b.Navbar.Header, null,
+                    e(b.Navbar.Brand, null,
+                        React.DOM.a({href: '#', onClick}, 'Learn React')),
+                    e(b.Navbar.Toggle)),
+                e(b.Navbar.Collapse, null,
+                    e(b.Nav, {bsStyle: 'tabs'},
+                        e(b.NavItem, {href: '#/Text', onClick}, 'Text'),
+                        e(b.NavItem, {href: '#/Props', onClick}, 'Props'),
+                        e(b.NavItem, {href: '#/GPS', onClick}, 'GPS'),
+                        e(b.NavItem, {href: '#/Logs', onClick}, 'Logs'))))
+    }
 
     function page(component) {
         return props => {
@@ -194,11 +192,11 @@ App.app = () => {
     }
 
     const pages = {
-        'Text': page(Text),
-        'Props': page(Props),
-        'GPS': page(GPS),
-        'Logs': page(Log)
+        '#/Text': page(Text),
+        '#/Props': page(Props),
+        '#/GPS': page(GPS),
+        '#/Logs': page(Log)
     }
 
-    return e(App, {default: page(Home), pages})
+    return {default: page(Home), pages}
 }

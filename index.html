@@ -20,15 +20,15 @@ class App extends React.Component {
 
         this.connector = ReactRedux.connect(
             (state) => {return {state: state}},
-            App.actions)
+            App.a)
 
         this.store = Redux.createStore(
             (state, action) => {
-                if(undefined === App.reducers[action.type])
+                if(undefined === App.r[action.type])
                     return state
 
                 state = JSON.parse(JSON.stringify(state))
-                App.reducers[action.type](state, action)
+                App.r[action.type](state, action)
                 return state
             }, {})
 
@@ -43,8 +43,7 @@ class App extends React.Component {
         const parser = document.createElement('a')
         parser.href = window.location
 
-        const key = _.trim(parser.hash, '#/')
-        const component = this.props.pages[key] || this.props.default
+        const component = this.props.pages[parser.hash] || this.props.default
 
         return React.createElement(
             ReactRedux.Provider,
@@ -52,15 +51,15 @@ class App extends React.Component {
             React.createElement(this.connector(component)))
     }
 }
-App.reducers = {}
-App.actions = {}
+App.r = {}
+App.a = {}
 </script>
 
 <script src="/apps/learn.js"></script>
 
 <body>
     <script>
-        ReactDOM.render(App.app(), document.body)
+        ReactDOM.render(React.createElement(App, App.pages()), document.body)
     </script>
 </body>
 </html>
