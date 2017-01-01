@@ -14,32 +14,23 @@
 </head>
 
 <script>
-function Menu(props) {
-    const b = ReactBootstrap
-    const e = React.createElement
-
-    const onClick = e => window.location = e.target
-
-    return e(b.Navbar, {collapseOnSelect: true},
-            e(b.Navbar.Header, null,
-                e(b.Navbar.Brand, null,
-                    React.DOM.a({href: '#', onClick}, props.title)),
-                e(b.Navbar.Toggle)),
-            e(b.Navbar.Collapse, null,
-                e(b.Nav, {bsStyle: 'tabs'},
-                    _.map(props.routes, (v, k) =>
-                        e(b.NavItem, {href: `#/${k}`, onClick}, k)))))
-}
-
-class Router extends React.Component {
+class App extends React.Component {
     constructor(props) {
         super(props)
 
         this.connector = ReactRedux.connect(
             (state) => {return {state: state}},
-            this.props.actions)
+            App.actions)
 
-        this.store = Redux.createStore(this.props.reducer, this.props.state)
+        this.store = Redux.createStore(
+            (state, action) => {
+                if(undefined === App.reducers[action.type])
+                    return state
+
+                state = JSON.parse(JSON.stringify(state))
+                App.reducers[action.type](state, action)
+                return state
+            }, {})
 
         console.log('Router.constructor: This should happen only once')
     }
@@ -53,7 +44,7 @@ class Router extends React.Component {
         parser.href = window.location
 
         const key = _.trim(parser.hash, '#/')
-        const component = this.props.routes[key] || this.props.default
+        const component = this.props.pages[key] || this.props.default
 
         return React.createElement(
             ReactRedux.Provider,
@@ -61,13 +52,15 @@ class Router extends React.Component {
             React.createElement(this.connector(component)))
     }
 }
+App.reducers = {}
+App.actions = {}
 </script>
 
 <script src="/apps/learn.js"></script>
 
 <body>
     <script>
-        ReactDOM.render(app(), document.body)
+        ReactDOM.render(App.app(), document.body)
     </script>
 </body>
 </html>

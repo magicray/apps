@@ -145,45 +145,60 @@ function Home(props) {
             React.DOM.h1(null, 'React Application'))
 }
 
-function reducer(state, action) {
-    switch(action.type) {
-        case 'UPDATE_TEXT':
-            return {text: action.text, flag: state.flag}
-
-        case 'TOGGLE_TEXT':
-            return {text: state.text, flag: state.flag? false: true}
-    }
-    return state
+App.reducers['UPDATE_TEXT'] = (state, action) => {
+    state.text = action.text
 }
 
-const actions = {
-    updateText(text) { return {
-        type: 'UPDATE_TEXT',
-        text
-    }},
-
-    toggleText() { return {
-        type: 'TOGGLE_TEXT'
-    }}
+App.reducers['TOGGLE_TEXT'] = (state, action) => {
+    state.flag = state.flag? false: true
 }
 
-function app() {
-    const routes = {
-        'Text': Text,
-        'Props': Props,
-        'GPS': GPS,
-        'Logs': Log
-    }
+App.actions.updateText = (text) => { return {
+    type: 'UPDATE_TEXT',
+    text
+}}
 
-    const state = {
-        text: 'initial text',
-        flag: false
-    }
+App.actions.toggleText = () => { return {
+    type: 'TOGGLE_TEXT'
+}}
 
+function Menu(props) {
+    const b = ReactBootstrap
     const e = React.createElement
 
-    return React.DOM.div(null,
-            e(Menu, {title: 'Learn React', routes}),
-            e(ReactBootstrap.Grid, null,
-                e(Router, {default: Home, routes, state, reducer, actions})))
+    const onClick = e => window.location = e.target
+
+    return e(b.Navbar, {collapseOnSelect: true},
+            e(b.Navbar.Header, null,
+                e(b.Navbar.Brand, null,
+                    React.DOM.a({href: '#', onClick}, 'Learn React')),
+                e(b.Navbar.Toggle)),
+            e(b.Navbar.Collapse, null,
+                e(b.Nav, {bsStyle: 'tabs'},
+                    e(b.NavItem, {href: '#/Text', onClick}, 'Text'),
+                    e(b.NavItem, {href: '#/Props', onClick}, 'Props'),
+                    e(b.NavItem, {href: '#/GPS', onClick}, 'GPS'),
+                    e(b.NavItem, {href: '#/Logs', onClick}, 'Logs'))))
+}
+
+App.app = () => {
+    const e = React.createElement
+
+    function page(component) {
+        return props => {
+            return React.DOM.div(null,
+                e(Menu, props),
+                e(ReactBootstrap.Grid, null,
+                    e(component, props)))
+        }
+    }
+
+    const pages = {
+        'Text': page(Text),
+        'Props': page(Props),
+        'GPS': page(GPS),
+        'Logs': page(Log)
+    }
+
+    return e(App, {default: page(Home), pages})
 }
