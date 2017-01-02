@@ -100,39 +100,31 @@ class GPS extends React.Component {
     }
 }
 
-function TextView(props) {
-    const onClick = e => props.onClick()
-    const onChange = e => props.onChange(e.target.value)
+function Text(props) {
+    const processedText = props.state.flag ? 
+                          props.state.text.split('').reverse().join('') :
+                          props.state.text
+
+    const textProps = {
+        type: 'text',
+        value: props.state.text,
+        onChange: e => props.updateText(e.target.value)
+    }
+
+    const buttonProps = {
+        bsStyle: 'primary',
+        onClick: props.toggleText
+    }
 
     const r = ReactBootstrap
     const e = React.createElement
 
     return e(r.Form, null,
         e(r.FormGroup, null,
-            e(r.FormControl, {
-                type: 'text',
-                value: props.text,
-                onChange}),
-            e(r.ControlLabel, null, props.processed),
+            e(r.FormControl, textProps),
+            e(r.ControlLabel, null, processedText),
             e(r.ButtonToolbar, null,
-                e(r.Button, {bsStyle: 'primary', onClick}, 'Toggle'))))
-}
-
-class Text extends React.Component {
-    constructor(props) {
-        super(props)
-        Log.log('Text.constructor()')
-    }
-    render() {
-        let {text, flag} = this.props.state
-
-        return TextView({
-            text,
-            processed: flag? text.split('').reverse().join(''): text,
-            onChange: this.props.updateText,
-            onClick: this.props.toggleText
-        })
-    }
+                e(r.Button, buttonProps, 'Toggle'))))
 }
 
 function Props(props) {
