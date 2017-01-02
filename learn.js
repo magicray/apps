@@ -153,14 +153,13 @@ App.r.toggleText = (state, action) => {
     state.flag = state.flag? false: true
 }
 
-App.a.updateText = (text) => { return {
-    type: 'updateText',
-    text
-}}
+App.a.updateText = (text) => {
+    return {text}
+}
 
-App.a.toggleText = () => { return {
-    type: 'toggleText'
-}}
+App.a.toggleText = () => {
+    return {}
+}
 
 App.pages = function() {
     const b = ReactBootstrap

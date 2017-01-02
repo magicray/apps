@@ -18,9 +18,19 @@ class App extends React.Component {
     constructor(props) {
         super(props)
 
+        const actions = {}
+        _.map(App.a, (v, k) => {
+            actions[k] = function() {
+                return {
+                    type: k,
+                    payload: App.a[k].apply(null, arguments)
+                }
+            }
+        })
+
         this.connector = ReactRedux.connect(
             (state) => {return {state: state}},
-            App.a)
+            actions)
 
         this.store = Redux.createStore(
             (state, action) => {
@@ -28,7 +38,7 @@ class App extends React.Component {
                     return state
 
                 state = JSON.parse(JSON.stringify(state))
-                App.r[action.type](state, action)
+                App.r[action.type](state, action.payload)
                 return state
             }, {})
 
