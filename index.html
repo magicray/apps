@@ -19,11 +19,11 @@ class App extends React.Component {
         super(props)
 
         const actions = {}
-        _.map(App.a, (v, k) => {
+        _.map(App.actions, (v, k) => {
             actions[k] = function() {
                 return {
                     type: k,
-                    payload: App.a[k].apply(null, arguments)
+                    payload: App.actions[k].apply(null, arguments)
                 }
             }
         })
@@ -34,11 +34,11 @@ class App extends React.Component {
 
         this.store = Redux.createStore(
             (state, action) => {
-                if(undefined === App.r[action.type])
+                if(undefined === App.reducers[action.type])
                     return state
 
                 state = JSON.parse(JSON.stringify(state))
-                App.r[action.type](state, action.payload)
+                App.reducers[action.type](state, action.payload)
                 return state
             }, {})
 
@@ -61,8 +61,6 @@ class App extends React.Component {
             React.createElement(this.connector(component)))
     }
 }
-App.r = {}
-App.a = {}
 </script>
 
 <script src="/apps/learn.js"></script>

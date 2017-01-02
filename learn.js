@@ -145,20 +145,24 @@ function Home(props) {
             React.DOM.h1(null, 'React Application'))
 }
 
-App.r.updateText = (state, action) => {
-    state.text = action.text
+App.reducers = {
+    updateText: function(state, action) {
+        state.text = action.text
+    },
+
+    toggleText: function(state, action) {
+        state.flag = state.flag? false: true
+    }
 }
 
-App.r.toggleText = (state, action) => {
-    state.flag = state.flag? false: true
-}
+App.actions = {
+    updateText: function(text) {
+        return {text}
+    },
 
-App.a.updateText = (text) => {
-    return {text}
-}
-
-App.a.toggleText = () => {
-    return {}
+    toggleText: function() {
+        return {}
+    }
 }
 
 App.pages = function() {
