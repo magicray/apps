@@ -34,69 +34,49 @@ Log.logs = []
 Log.count = 0
 
 class GPS extends React.Component {
-    constructor(props) {
-        super(props)
-
-        this.state = {
-            val: this.props.val,
-            loc: '',
-            action: 'Show Location'
-        }
-        Log.log('GPS.constructor()')
-    }
-
     componentDidMount() {
-        Log.log('Retrieving the location')
-        navigator.geolocation.getCurrentPosition((pos) => {
-            Log.log('Location retrived')
-            const loc = pos.coords;
-            this.setState({
-                loc: loc,
-                action: 'Show Address',
-                val: JSON.stringify({
-                    latitude: loc.latitude,
-                    longitude: loc.longitude,
-                    accuracy: loc.accuracy}, null, 4)});
-        });
-    }
-
-    showAddress() {
-        const maps = 'https://maps.googleapis.com/maps/api/geocode/json?';
-        const latlng = this.state.loc.latitude + ',' + this.state.loc.longitude;
-
-        Log.log('Retrieving the address')
-        fetch(`${maps}latlng=${latlng}`).then(response => {
-            response.json().then(d => {
-                Log.log('Address retrieving')
-                this.setState({
-                    action: 'Show Location',
-                    val: d.results[0]['formatted_address'].replace(
-                        /, */g, '\n')});
-            });
-        });
+        GPS.updateLoc(this.props.updateLocation)
     }
 
     render() {
         const onClick = (e) => {
-            if ('Show Address' === this.state.action) {
-                this.showAddress()
+            if ('Show Address' === this.props.state.gps.action) {
+                GPS.updateAddr(
+                    this.props.state.gps.coords,
+                    this.props.updateAddress)
             } else {
-                this.setState({
-                    loc: this.state.loc,
-                    action: 'Show Address',
-                    val: JSON.stringify({
-                        latitude: this.state.loc.latitude,
-                        longitude: this.state.loc.longitude,
-                        accuracy: this.state.loc.accuracy}, null, 4)});
+                GPS.updateLoc(this.props.updateLocation)
             }
         }
+
+        const state = this.props.state
+        const val = state.gps && state.gps.val || 'Fetching'
+        const action = state.gps && state.gps.action || 'WAIT'
 
         const r = ReactBootstrap
         const e = React.createElement
 
         return React.DOM.div(null,
-                    React.DOM.pre(null, this.state.val),
-                    e(r.Button, {onClick}, this.state.action))
+                    React.DOM.pre(null, val),
+                    e(r.Button, {onClick}, action))
+    }
+
+    static updateLoc(action) {
+        navigator.geolocation.getCurrentPosition((pos) => {
+            action(pos.coords)
+        })
+    }
+
+    static updateAddr(coords, action) {
+        const maps = 'https://maps.googleapis.com/maps/api/geocode/json?';
+        const latlng = coords.latitude + ',' + coords.longitude;
+
+        fetch(`${maps}latlng=${latlng}`).then(response => {
+            response.json().then(d => {
+                action(d.results[0]['formatted_address'].replace(
+                    /, */g, '\n'))
+            });
+        });
     }
 }
 
@@ -137,24 +117,27 @@ function Home(props) {
             React.DOM.h1(null, 'React Application'))
 }
 
-App.reducers = {
-    updateText: function(state, action) {
-        state.text = action.text
-    },
-
-    toggleText: function(state, action) {
-        state.flag = state.flag? false: true
-    }
+App.r.updateText = function(state, text) {
+    state.text = text
 }
 
-App.actions = {
-    updateText: function(text) {
-        return {text}
-    },
+App.r.toggleText = function(state) {
+    state.flag = state.flag? false: true
+}
 
-    toggleText: function() {
-        return {}
-    }
+App.r.updateLocation = function(state, coords) {
+    state.gps = {
+        coords,
+        action: 'Show Address',
+        val: JSON.stringify({
+            latitude: coords.latitude,
+            longitude: coords.longitude,
+            accuracy: coords.accuracy}, null, 4)}
+}
+
+App.r.updateAddress = function(state, addr) {
+    state.gps.action = 'Show Location'
+    state.gps.val = addr
 }
 
 App.pages = function() {
