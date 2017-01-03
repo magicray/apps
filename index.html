@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 
-<link rel="stylesheet" href="/apps/2a31dca112f26923b51676cb764c58d5.css">
-<script src="/apps/2846cf268980f90defa2e4050cc69dc5.js"></script>
+<link rel="stylesheet" href="/apps/bootstrap-3.3.7.css">
+<script src="/apps/external.js"></script>
 
 <head>
   <meta charset="utf-8">
@@ -28,19 +28,25 @@ class App extends React.Component {
             }
         })
 
-        this.connector = ReactRedux.connect(
+        App.connector = ReactRedux.connect(
             (state) => {return {state}},
             actions)
 
-        this.store = Redux.createStore(
+        App.store = Redux.createStore(
             (state, action) => {
                 if(undefined === App.r[action.type])
                     return state
 
                 state = JSON.parse(JSON.stringify(state))
-                App.r[action.type](state, ...action.payload)
+
+                try {
+                    App.r[action.type](state, ...action.payload)
+                } catch(e) {
+                    console.log(e)
+                }
+
                 return state
-            }, {})
+            }, App.state)
 
         console.log('Router.constructor: This should happen only once')
     }
@@ -57,8 +63,22 @@ class App extends React.Component {
 
         return React.createElement(
             ReactRedux.Provider,
-            {store: this.store},
-            React.createElement(this.connector(component)))
+            {store: App.store},
+            React.createElement(App.connector(component)))
+    }
+
+    static dispatchPromise(action, promise) {
+        App.store.dispatch({type: `${action}_PromisePending`, payload: []})
+
+        promise.then(r => {App.store.dispatch(
+            {type: `${action}_PromiseResolved`, payload: [r]})
+        }).catch(e => {App.store.dispatch(
+            {type: `${action}_PromiseRejected`, payload: [e]})
+        })
+    }
+
+    static stringify(obj) {
+        return JSON.stringify(obj, null, 4)
     }
 }
 App.r = {}

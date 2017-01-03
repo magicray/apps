@@ -49,34 +49,28 @@ class GPS extends React.Component {
             }
         }
 
-        const state = this.props.state
-        const val = state.gps && state.gps.val || 'Fetching'
-        const action = state.gps && state.gps.action || 'WAIT'
-
         const r = ReactBootstrap
         const e = React.createElement
 
         return React.DOM.div(null,
-                    React.DOM.pre(null, val),
-                    e(r.Button, {onClick}, action))
+                    React.DOM.pre(null, this.props.state.gps.val),
+                    e(r.Button, {onClick}, this.props.state.gps.action))
     }
 
     static updateLoc(action) {
-        navigator.geolocation.getCurrentPosition((pos) => {
-            action(pos.coords)
-        })
+        App.dispatchPromise('fetchLocation', new Promise(resolve => {
+            navigator.geolocation.getCurrentPosition((pos) => {
+                resolve(pos.coords)})
+        }))
     }
 
     static updateAddr(coords, action) {
         const maps = 'https://maps.googleapis.com/maps/api/geocode/json?';
         const latlng = coords.latitude + ',' + coords.longitude;
 
-        fetch(`${maps}latlng=${latlng}`).then(response => {
-            response.json().then(d => {
-                action(d.results[0]['formatted_address'].replace(
-                    /, */g, '\n'))
-            });
-        });
+        App.dispatchPromise(
+            'fetchAddress',
+            axios.get(`${maps}latlng=${latlng}`))
     }
 }
 
@@ -117,29 +111,6 @@ function Home(props) {
             React.DOM.h1(null, 'React Application'))
 }
 
-App.r.updateText = function(state, text) {
-    state.text = text
-}
-
-App.r.toggleText = function(state) {
-    state.flag = state.flag? false: true
-}
-
-App.r.updateLocation = function(state, coords) {
-    state.gps = {
-        coords,
-        action: 'Show Address',
-        val: JSON.stringify({
-            latitude: coords.latitude,
-            longitude: coords.longitude,
-            accuracy: coords.accuracy}, null, 4)}
-}
-
-App.r.updateAddress = function(state, addr) {
-    state.gps.action = 'Show Location'
-    state.gps.val = addr
-}
-
 App.pages = function() {
     const b = ReactBootstrap
     const e = React.createElement
@@ -177,4 +148,48 @@ App.pages = function() {
     }
 
     return {default: page(Home), pages}
+}
+
+App.state = {
+    text: 'Hello World',
+    flag: true,
+    gps: {}
+}
+
+App.r.fetchLocation_PromisePending = function(state) {
+    state.gps.val = 'Fetching Location'
+    state.gps.action = 'Show Location'
+}
+
+App.r.fetchLocation_PromiseResolved = function(state, coords) {
+    state.gps = {
+        coords,
+        action: 'Show Address',
+        val: App.stringify({
+            latitude: coords.latitude,
+            longitude: coords.longitude,
+            accuracy: coords.accuracy})}
+}
+
+App.r.fetchAddress_PromisePending = function(state) {
+    state.gps.val = 'Fetching Address'
+}
+
+App.r.fetchAddress_PromiseResolved = function(state, response) {
+    state.gps.action = 'Show Location'
+    state.gps.val = response.data.results[0]['formatted_address'].replace(
+        /, */g, '\n')
+}
+
+App.r.fetchAddress_PromiseRejected = function(state, error) {
+   state.gps.val = App.stringify(error)
+   state.gps.action = 'Show Address'
+}
+
+App.r.updateText = function(state, text) {
+    state.text = text
+}
+
+App.r.toggleText = function(state) {
+    state.flag = state.flag? false: true
 }
