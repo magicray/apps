@@ -35,17 +35,15 @@ Log.count = 0
 
 class GPS extends React.Component {
     componentDidMount() {
-        GPS.updateLoc(this.props.updateLocation)
+        GPS.updateLoc()
     }
 
     render() {
         const onClick = (e) => {
             if ('Show Address' === this.props.state.gps.action) {
-                GPS.updateAddr(
-                    this.props.state.gps.coords,
-                    this.props.updateAddress)
+                GPS.updateAddr(this.props.state.gps.coords)
             } else {
-                GPS.updateLoc(this.props.updateLocation)
+                GPS.updateLoc()
             }
         }
 
@@ -57,14 +55,14 @@ class GPS extends React.Component {
                     e(r.Button, {onClick}, this.props.state.gps.action))
     }
 
-    static updateLoc(action) {
+    static updateLoc() {
         App.dispatchPromise('fetchLocation', new Promise(resolve => {
             navigator.geolocation.getCurrentPosition((pos) => {
                 resolve(pos.coords)})
         }))
     }
 
-    static updateAddr(coords, action) {
+    static updateAddr(coords) {
         const maps = 'https://maps.googleapis.com/maps/api/geocode/json?';
         const latlng = coords.latitude + ',' + coords.longitude;
 
