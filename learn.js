@@ -124,7 +124,7 @@ App.pages = function() {
                         React.DOM.a({href: '#', onClick}, 'Learn React')),
                     e(b.Navbar.Toggle)),
                 e(b.Navbar.Collapse, null,
-                    e(b.Nav, {bsStyle: 'tabs'},
+                    e(b.Nav, null,
                         e(b.NavItem, {href: '#/Text', onClick}, 'Text'),
                         e(b.NavItem, {href: '#/Props', onClick}, 'Props'),
                         e(b.NavItem, {href: '#/GPS', onClick}, 'GPS'),
