@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
-
-<link rel="stylesheet" href="/apps/bootstrap-3.3.7.css">
+<link rel="stylesheet" href="/apps/bootstrap.css">
 <script src="/apps/external.min.js"></script>
+<script src="/apps/react-app.js"></script>
 
 <head>
   <meta charset="utf-8">
@@ -12,83 +12,217 @@
                    maximum-scale = 1.0,
                    user-scalable = no">
 </head>
-
 <script>
-class App extends React.Component {
-    constructor(props) {
-        super(props)
+class Log extends React.Component {
+    render() {
+        const onClick = () => {
+            Log.logs = []
+            this.setState({})
+        }
 
-        const actions = {}
-        _.map(App.r, (v, k) => {
-            actions[k] = function() {
-                return {
-                    type: k,
-                    payload: arguments
-                }
-            }
-        })
-
-        App.connector = ReactRedux.connect(
-            (state) => {return {state}},
-            actions)
-
-        App.store = Redux.createStore(
-            (state, action) => {
-                if(undefined === App.r[action.type])
-                    return state
-
-                state = JSON.parse(JSON.stringify(state))
-
-                try {
-                    App.r[action.type](state, ...action.payload)
-                } catch(e) {
-                    console.log(e)
-                }
-
-                return state
-            }, App.state)
-
-        console.log('Router.constructor: This should happen only once')
+        return React.DOM.div(null,
+                    React.DOM.pre(null, Log.logs.slice(-25).join('\n')),
+                    React.createElement(ReactBootstrap.Button,
+                        {onClick}, 'RESET'))
     }
 
+    static log(msg) {
+        const d = new Date(Date.now())
+        const y = d.getFullYear()
+        const mon = d.getMonth()+1
+        const day = d.getDate()
+        const h = d.getHours()
+        const min = d.getMinutes()
+        const s = d.getSeconds()
+        const msec = d.getMilliseconds()
+
+        Log.count += 1
+        const c = Log.count
+
+        const logmsg = `${c}.${y}${mon}${day}.${h}${min}${s}.${msec} : ${msg}`
+
+        console.log(logmsg)
+        Log.logs.push(logmsg)
+    }
+}
+Log.logs = []
+Log.count = 0
+
+class GPS extends React.Component {
     componentDidMount() {
-        window.onhashchange = () => this.setState({})
+        GPS.updateLoc(this.props.actions.fetchLocation)
     }
 
     render() {
-        const parser = document.createElement('a')
-        parser.href = window.location
+        const onClick = (e) => {
+            if ('Show Address' === this.props.state.gps.action) {
+                GPS.updateAddr(
+                    this.props.actions.fetchAddress,
+                    this.props.state.gps.latitude,
+                    this.props.state.gps.longitude)
+            } else {
+                GPS.updateLoc(this.props.actions.fetchLocation)
+            }
+        }
 
-        const component = this.props.pages[parser.hash] || this.props.default
+        const r = ReactBootstrap
+        const e = React.createElement
 
-        return React.createElement(
-            ReactRedux.Provider,
-            {store: App.store},
-            React.createElement(App.connector(component)))
+        return React.DOM.div(null,
+                    React.DOM.pre(null, this.props.state.gps.val),
+                    e(r.Button, {onClick}, this.props.state.gps.action))
     }
 
-    static dispatchPromise(action, promise) {
-        App.store.dispatch({type: `${action}_PromisePending`, payload: []})
-
-        promise.then(r => {App.store.dispatch(
-            {type: `${action}_PromiseResolved`, payload: [r]})
-        }).catch(e => {App.store.dispatch(
-            {type: `${action}_PromiseRejected`, payload: [e]})
-        })
+    static updateLoc(action) {
+        action(new Promise(resolve => {
+            navigator.geolocation.getCurrentPosition((pos) => {
+                resolve(pos.coords)})
+        }))
     }
 
-    static stringify(obj) {
-        return JSON.stringify(obj, null, 4)
+    static updateAddr(action, latitude, longitude) {
+        const maps = 'https://maps.googleapis.com/maps/api/geocode/json?';
+        const latlng = latitude + ',' + longitude;
+
+        console.log(`${maps}latlng=${latlng}`)
+        action(axios.get(`${maps}latlng=${latlng}`))
     }
 }
-App.r = {}
+
+function Text(props) {
+    const processedText = props.state.flag ? 
+                          props.state.text.split('').reverse().join('') :
+                          props.state.text
+
+    const textProps = {
+        type: 'text',
+        value: props.state.text,
+        onChange: e => props.actions.updateText(e.target.value)
+    }
+
+    const buttonProps = {
+        bsStyle: 'primary',
+        onClick: props.actions.toggleText
+    }
+
+    const r = ReactBootstrap
+    const e = React.createElement
+
+    return e(r.Form, null,
+        e(r.FormGroup, null,
+            e(r.FormControl, textProps),
+            e(r.ControlLabel, null, processedText),
+            e(r.ButtonToolbar, null,
+                e(r.Button, buttonProps, 'Toggle'))))
+}
+
+function Props(props) {
+    return React.DOM.pre(null, JSON.stringify(props, null, 4))
+}
+
+function Home(props) {
+    return React.createElement(
+        ReactBootstrap.Jumbotron, null,
+            React.DOM.h1(null, 'React Application'))
+}
+
+function Menu(props) {
+    const b = ReactBootstrap
+    const e = React.createElement
+
+    const onClick = e => window.location = e.target
+
+    return e(b.Navbar, {collapseOnSelect: true},
+            e(b.Navbar.Header, null,
+                e(b.Navbar.Brand, null,
+                    React.DOM.a({href: '#', onClick}, 'Learn React')),
+                e(b.Navbar.Toggle)),
+            e(b.Navbar.Collapse, null,
+                e(b.Nav, null,
+                    e(b.NavItem, {href: '#/Text', onClick}, 'Text'),
+                    e(b.NavItem, {href: '#/Props', onClick}, 'Props'),
+                    e(b.NavItem, {href: '#/GPS', onClick}, 'GPS'),
+                    e(b.NavItem, {href: '#/Logs', onClick}, 'Logs'))))
+}
+
+function page(component) {
+    const b = ReactBootstrap
+    const e = React.createElement
+    
+    return props => {
+        return React.DOM.div(null,
+            e(Menu, props),
+            e(ReactBootstrap.Grid, null,
+                e(component, props)))
+    }
+}
+
+const initial_state = {
+    text: 'Hello World',
+    flag: true,
+    gps: {}
+}
+
+const reducers = {
+fetchLocation_PromisePending: function(state) {
+    state.gps.val = 'Fetching Location'
+    state.gps.action = 'Show Location'
+},
+
+fetchLocation_PromiseResolved: function(state, coords) {
+    state.gps = {
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        accuracy: coords.accuracy,
+        action: 'Show Address',
+        val: App.stringify({
+            latitude: coords.latitude,
+            longitude: coords.longitude,
+            accuracy: coords.accuracy})}
+},
+
+fetchAddress_PromisePending: function(state) {
+    state.gps.val = 'Fetching Address'
+},
+
+fetchAddress_PromiseResolved: function(state, response) {
+    state.gps.action = 'Show Location'
+    state.gps.val = response.data.results[0]['formatted_address'].replace(
+        /, */g, '\n')
+},
+
+fetchAddress_PromiseRejected: function(state, error) {
+    state.gps.val = App.stringify(error)
+    state.gps.action = 'Show Address'
+},
+
+updateText: function(state, text) {
+    state.text = text
+},
+
+toggleText: function(state) {
+    state.flag = state.flag? false: true
+}
+}
 </script>
 
-<script src="/apps/learn.js"></script>
-
 <body>
+    <div id="app"></div>
+
     <script>
-        ReactDOM.render(React.createElement(App, App.pages()), document.body)
+        const props = {
+            reducers: reducers,
+            state: initial_state,
+            home: page(Home),
+            pages: {
+                '#/Text': page(Text),
+                '#/Props': page(Props),
+                '#/GPS': page(GPS),
+                '#/Logs': page(Log)}
+        }
+        
+        ReactDOM.render(React.createElement(App, props),
+            document.getElementById('app'))
     </script>
 </body>
 </html>
