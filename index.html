@@ -84,7 +84,6 @@ class GPS extends React.Component {
         const maps = 'https://maps.googleapis.com/maps/api/geocode/json?';
         const latlng = latitude + ',' + longitude;
 
-        console.log(`${maps}latlng=${latlng}`)
         action(axios.get(`${maps}latlng=${latlng}`))
     }
 }
@@ -130,7 +129,7 @@ function Menu(props) {
     const b = ReactBootstrap
     const e = React.createElement
 
-    const onClick = e => window.location = e.target
+    const onClick = e => props.actions.changeView(e.target)
 
     return e(b.Navbar, {collapseOnSelect: true},
             e(b.Navbar.Header, null,
@@ -214,7 +213,7 @@ toggleText: function(state) {
             reducers: reducers,
             state: initial_state,
             home: page(Home),
-            pages: {
+            views: {
                 '#/Text': page(Text),
                 '#/Props': page(Props),
                 '#/GPS': page(GPS),

@@ -2,7 +2,16 @@ class App extends React.Component {
     constructor(props) {
         super(props)
 
-        this.actions = {}
+        this.href = document.createElement('a')
+        this.href = window.location
+
+        this.actions = {
+            changeView: (location) => {
+                this.href = location
+                console.log('changeView', location, this.state)
+                this.setState(this.state)
+            }
+        }
         this.state = JSON.parse(JSON.stringify(props.state))
 
         const setState = (state) => this.setState(state)
@@ -10,6 +19,9 @@ class App extends React.Component {
         const m = ['PromisePending', 'PromiseResolved', 'PromiseRejected']
         
         for(let k in this.props.reducers) {
+            if(!this.props.reducers.hasOwnProperty(k))
+                continue
+
             const s = k.split('_')
             
             if(m.indexOf(s.pop()) > -1 && s !== k) {
@@ -22,12 +34,14 @@ class App extends React.Component {
                 this.actions[k] = function(promise) {
                     const state = getState()
                     try {
+                        console.log(pending.name, null, state)
                         pending(state)
                         setState(state)
 
                         promise.then(r => {    
                             const state = getState()
                             try {
+                                console.log(resolved.name, r, state)
                                 resolved(state, r)
                                 setState(state)
                             } catch(e) {
@@ -36,6 +50,7 @@ class App extends React.Component {
                         }).catch(e => {
                             const state = getState()
                             try {
+                                console.log(rejected.name, e, state)
                                 rejected(state, e)
                                 setState(state)
                             } catch(e) {
@@ -53,6 +68,7 @@ class App extends React.Component {
                     const state = getState()
                     
                     try {
+                        console.log(reducer.name, arguments, state)
                         reducer(state, ...arguments)
                         setState(state)
                     } catch(e) {
@@ -65,16 +81,10 @@ class App extends React.Component {
         console.log('initialized')
     }
 
-    componentDidMount() {
-        window.onhashchange = () => this.setState({})
-    }
-
     render() {
-        const parser = document.createElement('a')
-        parser.href = window.location
+        const component = this.props.views[this.href.hash] || this.props.home
 
-        const component = this.props.pages[parser.hash] || this.props.home
-
+        console.log(this.href.hash, this.state)
         return React.createElement(component, {
                 actions: this.actions,
                 state: JSON.parse(JSON.stringify(this.state))
