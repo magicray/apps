@@ -155,7 +155,7 @@ function page(component) {
     }
 }
 
-const initial_state = {
+const state = {
     text: 'Hello World',
     flag: true,
     gps: {}
@@ -207,9 +207,9 @@ toggleText: function(state) {
 <body>
     <script>
         App.mount({
-            reducers: reducers,
-            state: initial_state,
-            home: page(Home),
+            reducers,
+            state,
+            view: page(Home),
             views: {
                 '#/Text': page(Text),
                 '#/Props': page(Props),

@@ -22,6 +22,7 @@ class App extends React.Component {
         }
 
         this.state = JSON.parse(JSON.stringify(props.state))
+        this.views = this.props.views || {}
 
         const setState = (state) => this.setState(state)
         const getState = () => this.state
@@ -89,7 +90,7 @@ class App extends React.Component {
     }
 
     render() {
-        const component = this.props.views[this.href.hash] || this.props.home
+        const component = this.views[this.href.hash] || this.props.view
 
         return React.createElement(component, {
                 actions: this.actions,

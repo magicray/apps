@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<link rel="stylesheet" href="https://magicray.github.io/apps/bootstrap.css">
+<script src="/apps/external.min.js"></script>
+<script src="/apps/framework.js"></script>
+
+<head>
+  <meta charset="utf-8">
+</head>
+<script>
+function GPS(props) {
+    const onMouseOver = (e) => {
+        props.actions.fetchLocation(new Promise(resolve => {
+            navigator.geolocation.getCurrentPosition((pos) => {
+                resolve(pos.coords)})
+        }))
+     }
+
+    const onMouseOut = (e) => {
+        props.actions.clearLocation()
+    }
+
+    return React.DOM.pre({onMouseOver, onMouseOut}, props.state.gps)
+}
+
+function page(component) {
+    return props => {
+        return React.createElement(ReactBootstrap.Grid, null,
+                React.createElement(component, props))
+    }
+}
+
+const state = {
+    gps: ''
+}
+
+const reducers = {
+    fetchLocation_PromisePending: function(state) {
+        state.gps = 'Fetching Location'
+    },
+
+    fetchLocation_PromiseResolved: function(state, coords) {
+        state.gps = JSON.stringify({
+            latitude: coords.latitude,
+            longitude: coords.longitude,
+            accuracy: coords.accuracy}, null, 4)
+    },
+
+    clearLocation: function(state) {
+        state.gps = ''
+    }
+}
+</script>
+
+<body>
+    <script>
+        App.mount({reducers, state, view: page(GPS)})
+    </script>
+</body>
+</html>
