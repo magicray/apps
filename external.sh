@@ -8,7 +8,7 @@ JS="react/15.4.1/react                            \
     axios/0.15.3/axios                            \
     lodash.js/4.17.3/lodash"
 
-rm -f min.js js external.min.js external.js
+rm -f min.js js css external.min.js external.js bootstrap.css
 
 for js in $JS; do
     curl -f $CDN/$js.min.js >> min.js
