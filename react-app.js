@@ -97,14 +97,12 @@ class App extends React.Component {
     }
 
     static mount(props) {
-        let div = ''
+        let div = document.getElementById(props.div)
 
         if(props.div === undefined) {
             div = document.createElement('div')
             document.body.appendChild(div)
             div.id = Date.now()
-        } else {
-            div = document.getElementById(props.div)
         }
 
         ReactDOM.render(React.createElement(App, props), div)
