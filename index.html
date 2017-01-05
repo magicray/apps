@@ -174,10 +174,10 @@ fetchLocation_PromiseResolved: function(state, coords) {
         longitude: coords.longitude,
         accuracy: coords.accuracy,
         action: 'Show Address',
-        val: App.stringify({
+        val: JSON.stringify({
             latitude: coords.latitude,
             longitude: coords.longitude,
-            accuracy: coords.accuracy})}
+            accuracy: coords.accuracy}, null, 4)}
 },
 
 fetchAddress_PromisePending: function(state) {
@@ -206,10 +206,8 @@ toggleText: function(state) {
 </script>
 
 <body>
-    <div id="app"></div>
-
     <script>
-        const props = {
+        App.mount({
             reducers: reducers,
             state: initial_state,
             home: page(Home),
@@ -218,10 +216,7 @@ toggleText: function(state) {
                 '#/Props': page(Props),
                 '#/GPS': page(GPS),
                 '#/Logs': page(Log)}
-        }
-        
-        ReactDOM.render(React.createElement(App, props),
-            document.getElementById('app'))
+        })
     </script>
 </body>
 </html>
