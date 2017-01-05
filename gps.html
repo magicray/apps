@@ -20,7 +20,13 @@ function GPS(props) {
         props.actions.clearLocation()
     }
 
-    return React.DOM.pre({onMouseOver, onMouseOut}, props.state.gps)
+    const p = {
+        onMouseOver,
+        onMouseOut,
+        touchstart: onMouseOver,
+        touchEnd: onMouseOut}
+
+    return React.DOM.pre(p, props.state.gps)
 }
 
 function page(component) {
