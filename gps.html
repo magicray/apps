@@ -1,13 +1,9 @@
 <!DOCTYPE html>
-<html>
 <link rel="stylesheet" href="https://magicray.github.io/apps/bootstrap.css">
 <script src="/apps/external.min.js"></script>
-<script src="/apps/framework.js"></script>
+<script src="/apps/react-app.js"></script>
 
-<head>
-  <meta charset="utf-8">
-</head>
-<script>
+<body><script>
 function GPS(props) {
     const onMouseOver = (e) => {
         props.actions.fetchLocation(new Promise(resolve => {
@@ -29,11 +25,9 @@ function GPS(props) {
     return React.DOM.pre(p, props.state.gps)
 }
 
-function page(component) {
-    return props => {
-        return React.createElement(ReactBootstrap.Grid, null,
-                React.createElement(component, props))
-    }
+function router(route, props) {
+    return React.createElement(ReactBootstrap.Grid, null,
+                React.createElement(GPS, props))
 }
 
 const state = {
@@ -56,11 +50,6 @@ const reducers = {
         state.gps = ''
     }
 }
-</script>
 
-<body>
-    <script>
-        App.mount({reducers, state, view: page(GPS)})
-    </script>
-</body>
-</html>
+App.mount({reducers, state, router})
+</script></body>

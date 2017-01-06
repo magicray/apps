@@ -1,17 +1,8 @@
 <!DOCTYPE html>
-<html>
 <link rel="stylesheet" href="https://magicray.github.io/apps/bootstrap.css">
-<script src="https://magicray.github.io/apps/react-app.min.js"></script>
+<script src="https://magicray.github.io/apps/react-app-bundle.min.js"></script>
 
-<head>
-  <meta charset="utf-8">
-  <meta name = "viewport"
-        content = "width = device-width,
-                   initial-scale = 1.0,
-                   maximum-scale = 1.0,
-                   user-scalable = no">
-</head>
-<script>
+<body><script>
 class Log extends React.Component {
     render() {
         const onClick = () => {
@@ -128,7 +119,7 @@ function Menu(props) {
     const b = ReactBootstrap
     const e = React.createElement
 
-    const onClick = e => props.actions.changeView(e.target)
+    const onClick = e => props.actions.render(e.target)
 
     return e(b.Navbar, {collapseOnSelect: true},
             e(b.Navbar.Header, null,
@@ -143,16 +134,31 @@ function Menu(props) {
                     e(b.NavItem, {href: '#/Logs', onClick}, 'Logs'))))
 }
 
-function page(component) {
+function router(route, props) {
+    const a = document.createElement('a')
+
+    if(route) {
+        a.href = route
+        window.location = a.href
+    } else {
+        a.href = window.location
+    }
+
+    const routes = {
+        '#/Text': Text,
+        '#/Props': Props,
+        '#/GPS': GPS,
+        '#/Logs': Log}
+
+    const component = routes[a.hash] || Home
+
     const b = ReactBootstrap
     const e = React.createElement
     
-    return props => {
-        return React.DOM.div(null,
-            e(Menu, props),
-            e(ReactBootstrap.Grid, null,
-                e(component, props)))
-    }
+    return React.DOM.div(null,
+        e(Menu, props),
+        e(b.Grid, null,
+            e(component, props)))
 }
 
 const state = {
@@ -202,20 +208,6 @@ toggleText: function(state) {
     state.flag = state.flag? false: true
 }
 }
-</script>
 
-<body>
-    <script>
-        App.mount({
-            reducers,
-            state,
-            view: page(Home),
-            views: {
-                '#/Text': page(Text),
-                '#/Props': page(Props),
-                '#/GPS': page(GPS),
-                '#/Logs': page(Log)}
-        })
-    </script>
-</body>
-</html>
+App.mount({reducers, state, router})
+</script></body>
