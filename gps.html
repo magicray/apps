@@ -5,16 +5,8 @@
 
 <body><script>
 function GPS(props) {
-    const onMouseOver = (e) => {
-        props.actions.fetchLocation(new Promise(resolve => {
-            navigator.geolocation.getCurrentPosition((pos) => {
-                resolve(pos.coords)})
-        }))
-     }
-
-    const onMouseOut = (e) => {
-        props.actions.clearLocation()
-    }
+    const onMouseOver = () => props.actions.fetchLocation()
+    const onMouseOut = () => props.actions.clearLocation()
 
     const p = {
         onMouseOver,
@@ -22,34 +14,38 @@ function GPS(props) {
         touchstart: onMouseOver,
         touchEnd: onMouseOut}
 
-    return React.DOM.pre(p, props.state.gps)
-}
-
-function router(route, props) {
     return React.createElement(ReactBootstrap.Grid, null,
-                React.createElement(GPS, props))
+        React.DOM.pre(p, props.state.gps))
 }
 
 const state = {
     gps: ''
 }
 
-const reducers = {
-    fetchLocation_PromisePending: function(state) {
-        state.gps = 'Fetching Location'
-    },
+const actions = {}
+const reducers = {}
 
-    fetchLocation_PromiseResolved: function(state, coords) {
-        state.gps = JSON.stringify({
-            latitude: coords.latitude,
-            longitude: coords.longitude,
-            accuracy: coords.accuracy}, null, 4)
-    },
-
-    clearLocation: function(state) {
-        state.gps = ''
-    }
+actions.fetchLocation = function() {
+    return new Promise(resolve => {
+        navigator.geolocation.getCurrentPosition((pos) => {
+            resolve(pos.coords)})
+    })
 }
 
-App.mount({reducers, state, router})
+reducers.fetchLocation_PromisePending = function(state) {
+        state.gps = 'Fetching Location'
+}
+
+reducers.fetchLocation_PromiseResolved = function(state, coords) {
+    state.gps = JSON.stringify({
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        accuracy: coords.accuracy}, null, 4)
+}
+
+reducers.clearLocation = function(state) {
+    state.gps = ''
+}
+
+App.mount(state, actions, reducers, GPS)
 </script></body>
