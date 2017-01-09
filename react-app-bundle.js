@@ -59515,12 +59515,7 @@ class App extends React.Component {
         this.view = () => React.DOM.h1(null, 'Loading')
         this.state = JSON.parse(JSON.stringify(props.state))
 
-        this.actions = {
-            render: (component) => {
-                this.view = component? component: props.home
-                this.setState(this.state)
-            }
-        }
+        this.actions = {}
 
         for(let k in this.props.reducers) {
             if(!this.props.reducers.hasOwnProperty(k))
@@ -59585,12 +59580,16 @@ class App extends React.Component {
     }
 
     componentDidMount() {
+        const a = document.createElement('a')
+
         window.onhashchange = () => {
-            const a = document.createElement('a')
             a.href = window.location
             this.actions[a.hash.slice(2)]()
         }
-        this.actions.render()
+
+        a.href = window.location
+        const action = a.hash? a.hash.slice(2): 'homePage'
+        this.actions[action]()
     }
 
     render() {
@@ -59600,7 +59599,7 @@ class App extends React.Component {
         })
     }
 
-    static mount(state, actions, reducers, home, div_id) {
+    static mount(state, actions, reducers, div_id) {
         let div = document.getElementById(div_id)
 
         if(undefined === div_id) {
@@ -59609,7 +59608,7 @@ class App extends React.Component {
         }
 
         ReactDOM.render(
-            React.createElement(App, {state, actions, reducers, home}),
+            React.createElement(App, {state, actions, reducers}),
             div)
     }
 }

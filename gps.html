@@ -21,9 +21,10 @@ function GPS(props) {
 const state = {
     gps: ''
 }
-
 const actions = {}
 const reducers = {}
+
+reducers.homePage = (state) => GPS
 
 actions.fetchLocation = function() {
     return new Promise(resolve => {
@@ -47,5 +48,5 @@ reducers.clearLocation = function(state) {
     state.gps = ''
 }
 
-App.mount(state, actions, reducers, GPS)
+App.mount(state, actions, reducers)
 </script></body>

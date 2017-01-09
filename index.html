@@ -2,6 +2,11 @@
 <!DOCTYPE html>
 <link rel="stylesheet" href="https://magicray.github.io/apps/bootstrap.css">
 <script src="https://magicray.github.io/apps/react-app-bundle.min.js"></script>
+<meta name = "viewport"
+      content = "width = device-width,
+                 initial-scale = 1.0,
+                 maximum-scale = 1.0,
+                 user-scalable = no">
 
 <body><script>
 const b = ReactBootstrap
@@ -98,6 +103,7 @@ const state = {
 const actions = {}
 const reducers = {}
 
+reducers.homePage = (state) => Home
 reducers.renderHome = (state) => Home
 reducers.renderText = (state) => Text
 reducers.renderProps = (state) => Props
@@ -157,5 +163,5 @@ reducers.toggleText = function(state) {
     state.flag = state.flag? false: true
 }
 
-App.mount(state, actions, reducers, Home)
+App.mount(state, actions, reducers)
 </script></body>
