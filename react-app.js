@@ -1,4 +1,7 @@
 /* Micro framework for building react based applications */
+const b = ReactBootstrap
+const e = React.createElement
+
 class App extends React.Component {
     constructor(props) {
         super(props)
@@ -88,10 +91,7 @@ class App extends React.Component {
     }
 
     render() {
-        return React.createElement(this.view, {
-            state: this.state,
-            actions: this.actions
-        })
+        return e(this.view, {state: this.state, actions: this.actions})
     }
 
     static mount(state, actions, reducers, div_id) {
@@ -102,8 +102,6 @@ class App extends React.Component {
             document.body.appendChild(div)
         }
 
-        ReactDOM.render(
-            React.createElement(App, {state, actions, reducers}),
-            div)
+        ReactDOM.render(e(App, {state, actions, reducers}), div)
     }
 }

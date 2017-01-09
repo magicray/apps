@@ -2,8 +2,8 @@
 <link rel="stylesheet" href="https://magicray.github.io/apps/bootstrap.css">
 <script src="/apps/external.min.js"></script>
 <script src="/apps/react-app.js"></script>
-
-<body><script>
+<body/>
+<script>
 function GPS(props) {
     const onMouseOver = () => props.actions.fetchLocation()
     const onMouseOut = () => props.actions.clearLocation()
@@ -14,7 +14,7 @@ function GPS(props) {
         touchstart: onMouseOver,
         touchEnd: onMouseOut}
 
-    return React.createElement(ReactBootstrap.Grid, null,
+    return e(ReactBootstrap.Grid, null,
         React.DOM.pre(p, props.state.gps))
 }
 
@@ -49,4 +49,4 @@ reducers.clearLocation = function(state) {
 }
 
 App.mount(state, actions, reducers)
-</script></body>
+</script>

@@ -8,10 +8,8 @@
                  maximum-scale = 1.0,
                  user-scalable = no">
 
-<body><script>
-const b = ReactBootstrap
-const e = React.createElement
-
+<body/>
+<script>
 function GPS(props) {
     const onClick = (e) => {
         if ('Show Address' === props.state.gps.action) {
@@ -47,7 +45,6 @@ function Text(props) {
     }
 
     const r = ReactBootstrap
-    const e = React.createElement
 
     return React.DOM.div(null,
         e(Menu, props),
@@ -85,7 +82,7 @@ function Menu(props) {
     return e(b.Navbar, {collapseOnSelect: true},
             e(b.Navbar.Header, null,
                 e(b.Navbar.Brand, null,
-                    React.DOM.a(a('renderHome'), 'Learn React')),
+                    React.DOM.a(a('homePage'), 'Learn React')),
                 e(b.Navbar.Toggle)),
             e(b.Navbar.Collapse, null,
                 e(b.Nav, null,
@@ -104,7 +101,6 @@ const actions = {}
 const reducers = {}
 
 reducers.homePage = (state) => Home
-reducers.renderHome = (state) => Home
 reducers.renderText = (state) => Text
 reducers.renderProps = (state) => Props
 
@@ -164,4 +160,4 @@ reducers.toggleText = function(state) {
 }
 
 App.mount(state, actions, reducers)
-</script></body>
+</script>
