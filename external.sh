@@ -4,7 +4,6 @@ CDN=https://cdnjs.cloudflare.com/ajax/libs
 
 JS="react/15.4.1/react                            \
     react/15.4.1/react-dom                        \
-    react-bootstrap/0.30.7/react-bootstrap        \
     axios/0.15.3/axios                            \
     lodash.js/4.17.3/lodash"
 
@@ -20,5 +19,12 @@ done
 mv min.js external.min.js
 mv js external.js
 
-curl -f https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css > css
+CSS="twitter-bootstrap/3.3.7/css/bootstrap.css \
+     bootstrap-material-design/4.0.2/bootstrap-material-design.css"
+
+for css in $CSS; do
+    curl -f $CDN/$css >> css
+    echo >> css
+done
+
 mv css bootstrap.css

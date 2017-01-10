@@ -1,5 +1,4 @@
 /* Micro framework for building react based applications */
-const b = ReactBootstrap
 const e = React.createElement
 
 class App extends React.Component {

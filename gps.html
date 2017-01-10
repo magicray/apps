@@ -14,8 +14,10 @@ function GPS(props) {
         touchstart: onMouseOver,
         touchEnd: onMouseOut}
 
-    return e(ReactBootstrap.Grid, null,
-        React.DOM.pre(p, props.state.gps))
+    const {div, pre} = React.DOM
+
+    return div({className: 'container'},
+            pre(p, props.state.gps))
 }
 
 const state = {

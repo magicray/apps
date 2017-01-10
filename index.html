@@ -21,11 +21,14 @@ function GPS(props) {
         }
     }
 
-    return React.DOM.div(null,
-        e(Menu, props),
-        e(b.Grid, null,
-            React.DOM.pre(null, props.state.gps.val),
-            e(b.Button, {onClick}, props.state.gps.action)))
+    const {div, a, pre} = React.DOM
+
+    return div(null,
+            e(Menu, props),
+            div({className: 'container'},
+                pre(null, props.state.gps.val),
+                a({className: 'btn btn-primary', onClick},
+                    props.state.gps.action)))
 }
 
 function Text(props) {
@@ -35,60 +38,57 @@ function Text(props) {
 
     const textProps = {
         type: 'text',
+        className: 'form-control',
         value: props.state.text,
         onChange: e => props.actions.updateText(e.target.value)
     }
 
     const buttonProps = {
-        bsStyle: 'primary',
+        className: 'btn btn-primary',
         onClick: props.actions.toggleText
     }
 
-    const r = ReactBootstrap
+    const {div, a, input, label} = React.DOM
 
-    return React.DOM.div(null,
-        e(Menu, props),
-        e(b.Grid, null,
-            e(r.Form, null,
-                e(r.FormGroup, null,
-                    e(r.FormControl, textProps),
-                    e(r.ControlLabel, null, processedText),
-                    e(r.ButtonToolbar, null,
-                        e(r.Button, buttonProps, 'Toggle'))))))
+    return div(null,
+            e(Menu, props),
+            div({className: 'container'},
+                input(textProps),
+                label({className: 'form-control'}, processedText),
+                a(buttonProps, 'Toggle')))
 }
 
 function Props(props) {
-    return React.DOM.div(null,
-        e(Menu, props),
-        e(b.Grid, null,
-            React.DOM.pre(null, JSON.stringify(props, null, 4))))
+    const {div, pre} = React.DOM
+
+    return div(null,
+            e(Menu, props),
+            div({className: 'container'},
+                pre(null, JSON.stringify(props, null, 4))))
 }
 
 function Home(props) {
-    return React.DOM.div(null,
-        e(Menu, props),
-        e(b.Grid, null,
-            e(ReactBootstrap.Jumbotron, null,
-                React.DOM.h1(null, 'Example'))))
+    const {div, h1} = React.DOM
+
+    return div(null,
+            e(Menu, props),
+                div({className: 'jumbotron container'},
+                    h1(null, 'Example')))
 }
 
 function Menu(props) {
-    function a(action) {
-        return {
-            onClick: () => window.location = '#/' + action
-        }
-    }
+    const {div, a, ul, li} = React.DOM
 
-    return e(b.Navbar, {collapseOnSelect: true},
-            e(b.Navbar.Header, null,
-                e(b.Navbar.Brand, null,
-                    React.DOM.a(a('homePage'), 'Learn React')),
-                e(b.Navbar.Toggle)),
-            e(b.Navbar.Collapse, null,
-                e(b.Nav, null,
-                    e(b.NavItem, a('renderText'), 'Text'),
-                    e(b.NavItem, a('renderProps'), 'Props'),
-                    e(b.NavItem, a('renderGPS'), 'GPS'))))
+    return div({className: "navbar navbar-default"},
+        div({className: "container"},
+            div({className: "navbar-header"},
+               a({className: "navbar-brand", href: '#/homePage'},
+                   'Learn React')),
+            div({className: "navbar-collapse navbar-responsive-collapse"},
+                ul({className: "nav navbar-nav"},
+                    li(null, a({href: '#/renderText'}, 'Text')),
+                    li(null, a({href: '#/renderProps'}, 'Props')),
+                    li(null, a({href: '#/renderGPS'}, 'GPS'))))))
 }
 
 const state = {
