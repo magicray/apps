@@ -54,21 +54,21 @@ class App extends React.Component {
                         try {
                             setView(resolved(state, r))
                             setState(state)
-                        } catch(e) {
-                            console.log(resolved.name, state, e)
+                        } catch(err) {
+                            console.log(resolved.name, state, err)
                         }
-                    }).catch(e => {
+                    }).catch(err => {
                         const state = getState()
 
                         try {
-                            setView(rejected(state, e))
+                            setView(rejected(state, err))
                             setState(state)
                         } catch(e) {
-                            console.log(rejected.name, state, e)
+                            console.log(rejected.name, state, err)
                         }
                     })
-                } catch(e) {
-                    console.log(e)
+                } catch(err) {
+                    console.log(err)
                 }
             }
         }

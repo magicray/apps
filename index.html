@@ -1,7 +1,14 @@
 
 <!DOCTYPE html>
-<link rel="stylesheet" href="https://magicray.github.io/apps/bootstrap.css">
-<script src="https://magicray.github.io/apps/react-app-bundle.min.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/4.0.2/bootstrap-material-design.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.1/react.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.1/react-dom.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.15.3/axios.min.js"></script>
+
+<script src="https://magicray.github.io/apps/react-app.js"></script>
+
 <meta name = "viewport"
       content = "width = device-width,
                  initial-scale = 1.0,
@@ -77,25 +84,30 @@ function Home(props) {
 }
 
 function Menu(props) {
-    const {div, a, ul, li, button, span} = React.DOM
+    const {div, a, ul, li, button, span, nav, pre} = React.DOM
 
-    return div({className: 'navbar navbar-default'},
+    return nav({className: 'navbar navbar-default'},
             div({className: 'container'},
                 div({className: 'navbar-header'},
                     button({type: 'button',
                             className: 'navbar-toggle',
                             'data-toggle': 'collapse',
-                            'data-target': '.navbar-responsive-collapse'},
+                            'data-target': '.nav-collapse'},
                         span({className: 'icon-bar'}),
                         span({className: 'icon-bar'}),
                         span({className: 'icon-bar'})),
                     a({className: 'navbar-brand', href: '#/homePage'},
-                        React.DOM.h2(null, 'Learn React'))),
-                div({className: 'navbar-collapse collapse navbar-responsive-collapse'},
+                        React.DOM.h2(null, 'React'))),
+                div({className: 'navbar-collapse collapse nav-collapse'},
                     ul({className: "nav navbar-nav"},
                         li(null, a({href: '#/renderText'}, 'Text')),
                         li(null, a({href: '#/renderProps'}, 'Props')),
-                        li(null, a({href: '#/renderGPS'}, 'GPS'))))))
+                        li(null, a({href: '#/renderGPS'}, 'GPS'))),
+                    ul({className: "nav navbar-nav navbar-right"},
+                        li(null,
+                            a({href: '#/Login'}, 
+                                span({className: 'glyphicon glyphicon-log-in'},
+                                        ' Login')))))))
 }
 
 const state = {
