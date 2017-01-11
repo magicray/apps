@@ -27,7 +27,7 @@ function GPS(props) {
             e(Menu, props),
             div({className: 'container'},
                 pre(null, props.state.gps.val),
-                a({className: 'btn btn-primary', onClick},
+                a({className: 'btn btn-raised btn-primary', onClick},
                     props.state.gps.action)))
 }
 
@@ -44,7 +44,7 @@ function Text(props) {
     }
 
     const buttonProps = {
-        className: 'btn btn-primary',
+        className: 'btn btn-raised btn-primary',
         onClick: props.actions.toggleText
     }
 
@@ -77,18 +77,25 @@ function Home(props) {
 }
 
 function Menu(props) {
-    const {div, a, ul, li} = React.DOM
+    const {div, a, ul, li, button, span} = React.DOM
 
-    return div({className: "navbar navbar-default"},
-        div({className: "container"},
-            div({className: "navbar-header"},
-               a({className: "navbar-brand", href: '#/homePage'},
-                   'Learn React')),
-            div({className: "navbar-collapse navbar-responsive-collapse"},
-                ul({className: "nav navbar-nav"},
-                    li(null, a({href: '#/renderText'}, 'Text')),
-                    li(null, a({href: '#/renderProps'}, 'Props')),
-                    li(null, a({href: '#/renderGPS'}, 'GPS'))))))
+    return div({className: 'navbar navbar-default'},
+            div({className: 'container'},
+                div({className: 'navbar-header'},
+                    button({type: 'button',
+                            className: 'navbar-toggle',
+                            'data-toggle': 'collapse',
+                            'data-target': '.navbar-responsive-collapse'},
+                        span({className: 'icon-bar'}),
+                        span({className: 'icon-bar'}),
+                        span({className: 'icon-bar'})),
+                    a({className: 'navbar-brand', href: '#/homePage'},
+                        React.DOM.h2(null, 'Learn React'))),
+                div({className: 'navbar-collapse collapse navbar-responsive-collapse'},
+                    ul({className: "nav navbar-nav"},
+                        li(null, a({href: '#/renderText'}, 'Text')),
+                        li(null, a({href: '#/renderProps'}, 'Props')),
+                        li(null, a({href: '#/renderGPS'}, 'GPS'))))))
 }
 
 const state = {

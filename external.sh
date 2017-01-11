@@ -10,6 +10,7 @@ JS="react/15.4.1/react                            \
 rm -f min.js js css external.min.js external.js bootstrap.css
 
 for js in $JS; do
+    echo $js
     curl -f $CDN/$js.min.js >> min.js
     curl -f $CDN/$js.js >> js
     echo >> min.js
@@ -23,6 +24,7 @@ CSS="twitter-bootstrap/3.3.7/css/bootstrap.css \
      bootstrap-material-design/4.0.2/bootstrap-material-design.css"
 
 for css in $CSS; do
+    echo $css
     curl -f $CDN/$css >> css
     echo >> css
 done
