@@ -2,13 +2,14 @@ class AppClass extends React.Component {
     constructor(props) {
         super(props)
 
-        const setView = (view) => this.view = view? view: this.view
         const getState = () => this.state
         const setState = (state) => this.setState(state)
         const getAction = (action) => this.props.actions[action]
 
-        this.view = () => React.DOM.h1(null, 'Loading')
-        this.state = JSON.parse(JSON.stringify(props.state))
+        this.state = {
+            view: () => React.DOM.h1(null, 'Loading'),
+            state: JSON.parse(JSON.stringify(props.state))
+        }
 
         this.actions = {}
 
@@ -19,43 +20,21 @@ class AppClass extends React.Component {
                 const state = getState()
 
                 try {
-                    const ret = reducer.apply(state, arguments)
+                    const promise = reducer.apply(state, arguments)
+                    setState(state)
 
-                    if('object' === typeof(ret)) {
-                        const promise = ret
-                        const pending = getAction(k + '_PromisePending')
-                        const resolved = getAction(k + '_PromiseResolved')
-                        const rejected = getAction(k + '_PromiseRejected')
-
-                        try {
-                            setView(pending.apply(state))
+                    if(promise) {
+                        promise.then(val => {
+                            const state = getState()
+                            getAction(k + '_PromiseResolved').apply(
+                                state, [val])
                             setState(state)
-
-                            promise.then(r => {
-                                const state = getState()
-
-                                try {
-                                    setView(resolved.apply(state, [r]))
-                                    setState(state)
-                                } catch(e) {
-                                    console.log(resolved.name, state, e)
-                                }
-                            }).catch(e => {
-                                const state = getState()
-
-                                try {
-                                    setView(rejected.apply(state, [e]))
-                                    setState(state)
-                                } catch(e) {
-                                    console.log(rejected.name, state, e)
-                                }
-                            })
-                        } catch(e) {
-                            console.log(e)
-                        }
-                    } else {
-                        setView(ret)
-                        setState(state)
+                        }).catch(val => {
+                            const state = getState()
+                            getAction(k + '_PromiseRejected').apply(
+                                state, [val])
+                            setState(state)
+                        })
                     }
                 } catch(e) {
                     console.log(reducer.name, arguments, state, e)
@@ -80,19 +59,19 @@ class AppClass extends React.Component {
     }
 
     render() {
-        return React.createElement(this.view, {
-            state: this.state,
+        return React.createElement(this.state.view, {
+            state: this.state.state,
             actions: this.actions})
     }
 }
 
-function App(onload, state, divId) {
+function App(state) {
     return {
         render: function(props) {
             return React.createElement(AppClass, props)
         },
 
-        mount: function(divId) {
+        mount: function(onload, divId) {
             let div = document.getElementById(divId)
 
             if(undefined === divId) {

@@ -113,17 +113,29 @@ function Menu(props) {
                                         ' Login')))))))
 }
 
-app = App('renderHome', {
+app = App({
     text: 'Hello World',
     flag: true,
     gps: {}
 })
 
-app.renderHome = function() { return Home }
-app.renderText = function() { return Text }
-app.renderProps = function() {return Props }
+app.renderHome = function() {
+    this.view = Home
+}
+
+app.renderText = function() {
+    this.view = Text
+}
+
+app.renderProps = function() {
+    this.view = Props
+}
 
 app.renderGPS = function() {
+    this.state.gps.val = 'Fetching Location'
+    this.state.gps.action = 'Show Location'
+    this.view = GPS
+
     return new Promise(resolve => {
         navigator.geolocation.getCurrentPosition((pos) => {
             resolve(pos.coords)})
@@ -131,20 +143,16 @@ app.renderGPS = function() {
 }
 
 app.fetchAddress = function(latitude, longitude) {
+    this.state.gps.val = 'Fetching Address'
+
     const maps = 'https://maps.googleapis.com/maps/api/geocode/json?';
     const latlng = latitude + ',' + longitude;
 
     return axios.get(`${maps}latlng=${latlng}`)
 }
 
-app.renderGPS_PromisePending = function() {
-    this.gps.val = 'Fetching Location'
-    this.gps.action = 'Show Location'
-    return GPS
-}
-
 app.renderGPS_PromiseResolved = function(coords) {
-    this.gps = {
+    this.state.gps = {
         latitude: coords.latitude,
         longitude: coords.longitude,
         accuracy: coords.accuracy,
@@ -155,28 +163,24 @@ app.renderGPS_PromiseResolved = function(coords) {
             accuracy: coords.accuracy}, null, 4)}
 }
 
-app.fetchAddress_PromisePending = function() {
-    this.gps.val = 'Fetching Address'
-}
-
 app.fetchAddress_PromiseResolved = function(response) {
-    this.gps.action = 'Show Location'
-    this.gps.val = response.data.results[0]['formatted_address'].replace(
+    this.state.gps.action = 'Show Location'
+    this.state.gps.val = response.data.results[0]['formatted_address'].replace(
         /, */g, '\n')
 }
 
 app.fetchAddress_PromiseRejected = function(error) {
-    this.gps.val = JSON.stringify(error)
-    this.gps.action = 'Show Address'
+    this.state.gps.val = JSON.stringify(error)
+    this.state.gps.action = 'Show Address'
 }
 
 app.updateText = function(text) {
-    this.text = text
+    this.state.text = text
 }
 
 app.toggleText = function() {
-    this.flag = this.flag? false: true
+    this.state.flag = this.state.flag? false: true
 }
 
-app.mount()
+app.mount('renderHome')
 </script>
