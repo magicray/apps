@@ -1,71 +1,64 @@
-class App extends React.Component {
+class AppView extends React.Component {
     constructor(props) {
         super(props)
 
         const setView = (view) => this.view = view? view: this.view
         const getState = () => this.state
         const setState = (state) => this.setState(state)
+        const getAction = (action) => this.props.actions[action]
 
         this.view = () => React.DOM.h1(null, 'Loading')
         this.state = JSON.parse(JSON.stringify(props.state))
 
         this.actions = {}
 
-        for(let k in this.props.reducers) {
-            if(!this.props.reducers.hasOwnProperty(k))
-                continue
-
-            const reducer = this.props.reducers[k]
+        for(let k in this.props.actions) {
+            const reducer = this.props.actions[k]
 
             this.actions[k] = function() {
+                const state = getState()
+
                 try {
-                    const state = getState()
-                    setView(reducer(state, ...arguments))
-                    setState(state)
+                    const ret = reducer.apply(state, arguments)
+
+                    if('object' === typeof(ret)) {
+                        const promise = ret
+                        const pending = getAction(k + '_PromisePending')
+                        const resolved = getAction(k + '_PromiseResolved')
+                        const rejected = getAction(k + '_PromiseRejected')
+
+                        try {
+                            setView(pending.apply(state))
+                            setState(state)
+
+                            promise.then(r => {
+                                const state = getState()
+
+                                try {
+                                    setView(resolved.apply(state, [r]))
+                                    setState(state)
+                                } catch(e) {
+                                    console.log(resolved.name, state, e)
+                                }
+                            }).catch(e => {
+                                const state = getState()
+
+                                try {
+                                    setView(rejected.apply(state, [e]))
+                                    setState(state)
+                                } catch(e) {
+                                    console.log(rejected.name, state, e)
+                                }
+                            })
+                        } catch(e) {
+                            console.log(e)
+                        }
+                    } else {
+                        setView(ret)
+                        setState(state)
+                    }
                 } catch(e) {
                     console.log(reducer.name, arguments, state, e)
-                }
-            }
-        }
-
-        for(let k in this.props.actions) {
-            if(!this.props.actions.hasOwnProperty(k))
-                continue
-
-            const action = this.props.actions[k]
-            const pending = this.props.reducers[k + '_PromisePending']
-            const resolved = this.props.reducers[k + '_PromiseResolved']
-            const rejected = this.props.reducers[k + '_PromiseRejected']
-
-            this.actions[k] = function() {
-                const promise = action(...arguments)
-
-                try {
-                    const state = getState()
-                    setView(pending(state))
-                    setState(state)
-
-                    promise.then(r => {
-                        const state = getState()
-
-                        try {
-                            setView(resolved(state, r))
-                            setState(state)
-                        } catch(e) {
-                            console.log(resolved.name, state, e)
-                        }
-                    }).catch(e => {
-                        const state = getState()
-
-                        try {
-                            setView(rejected(state, e))
-                            setState(state)
-                        } catch(e) {
-                            console.log(rejected.name, state, e)
-                        }
-                    })
-                } catch(e) {
-                    console.log(e)
                 }
             }
         }
@@ -82,7 +75,7 @@ class App extends React.Component {
         }
 
         a.href = window.location
-        const action = a.hash? a.hash.slice(2): 'homePage'
+        const action = a.hash? a.hash.slice(2): this.props.onload
         this.actions[action]()
     }
 
@@ -92,7 +85,7 @@ class App extends React.Component {
             actions: this.actions})
     }
 
-    static mount(state, actions, reducers, div_id) {
+    static mount(state, actions, onload, div_id) {
         let div = document.getElementById(div_id)
 
         if(undefined === div_id) {
@@ -101,7 +94,15 @@ class App extends React.Component {
         }
 
         ReactDOM.render(
-            React.createElement(App, {state, actions, reducers}),
+            React.createElement(AppView, {state, actions, onload}),
             div)
+    }
+}
+
+function App(onload, state, divId) {
+    return {
+        render: function(div) {
+            AppView.mount(state, this, onload, divId)
+        }
     }
 }
