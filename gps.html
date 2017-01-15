@@ -26,35 +26,33 @@ function GPS(props) {
             pre(p, props.state.gps))
 }
 
-const state = {
+const app = App('renderHome', {
     gps: ''
-}
-const actions = {}
-const reducers = {}
+})
 
-reducers.homePage = (state) => GPS
+app.renderHome = function() { return GPS }
 
-actions.fetchLocation = function() {
+app.fetchLocation = function() {
     return new Promise(resolve => {
         navigator.geolocation.getCurrentPosition((pos) => {
             resolve(pos.coords)})
     })
 }
 
-reducers.fetchLocation_PromisePending = function(state) {
-        state.gps = 'Fetching Location'
+app.fetchLocation_PromisePending = function() {
+        this.gps = 'Fetching Location'
 }
 
-reducers.fetchLocation_PromiseResolved = function(state, coords) {
-    state.gps = JSON.stringify({
+app.fetchLocation_PromiseResolved = function(coords) {
+    this.gps = JSON.stringify({
         latitude: coords.latitude,
         longitude: coords.longitude,
         accuracy: coords.accuracy}, null, 4)
 }
 
-reducers.clearLocation = function(state) {
-    state.gps = ''
+app.clearLocation = function() {
+    this.gps = ''
 }
 
-App.mount(state, actions, reducers)
+app.mount()
 </script>

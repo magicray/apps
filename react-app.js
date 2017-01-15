@@ -1,4 +1,4 @@
-class AppView extends React.Component {
+class AppClass extends React.Component {
     constructor(props) {
         super(props)
 
@@ -84,25 +84,26 @@ class AppView extends React.Component {
             state: this.state,
             actions: this.actions})
     }
-
-    static mount(state, actions, onload, div_id) {
-        let div = document.getElementById(div_id)
-
-        if(undefined === div_id) {
-            div = document.createElement('div')
-            document.body.appendChild(div)
-        }
-
-        ReactDOM.render(
-            React.createElement(AppView, {state, actions, onload}),
-            div)
-    }
 }
 
 function App(onload, state, divId) {
     return {
-        render: function(div) {
-            AppView.mount(state, this, onload, divId)
+        render: function(props) {
+            return React.createElement(AppClass, props)
+        },
+
+        mount: function(divId) {
+            let div = document.getElementById(divId)
+
+            if(undefined === divId) {
+                div = document.createElement('div')
+                document.body.appendChild(div)
+            }
+
+            ReactDOM.render(
+                React.createElement(this.render, {
+                    state, onload, actions: this}),
+                div)
         }
     }
 }
