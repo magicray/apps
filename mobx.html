@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name = "viewport"
+      content = "width = device-width,
+                 initial-scale = 1.0,
+                 maximum-scale = 1.0,
+                 user-scalable = no">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/4.0.2/bootstrap-material-design.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.1/react.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.1/react-dom.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.15.3/axios.min.js"></script>
+<script src="https://unpkg.com/mobx@3.0.1/lib/mobx.umd.min.js"></script>
+<script src="https://unpkg.com/mobx-react@4.1.0/index.js"></script>
+
+<body><script>
+  const {observable, action} = mobx
+
+  const e = function(component, props) {
+    return React.createElement(
+      mobxReact.observer(component),
+      props || {state})
+  }
+</script></body>
+
+<script>
+const state = observable({
+    nClicks: 0,
+    nMouseOver: 0,
+    nMouseOut: 0,
+                              
+    get total() {
+      return JSON.stringify({
+              Clicks: this.nClicks,
+              MouseOver: this.nMouseOver,
+              MouseOut: this.nMouseOut,
+              Total: this.nClicks + this.nMouseOver + this.nMouseOut
+          }, null, 4)
+      
+    },
+  
+    incrClick: action(function() {
+        this.nClicks++
+    }),
+
+    incrMouseOver: action(function() {
+        this.nMouseOver++
+    }),
+
+    incrMouseOut: action(function() {
+        this.nMouseOut++
+    }),
+
+    reset: action(function() {
+      this.nClicks = 0
+      this.nMouseOver = 0
+      this.nMouseOut = 0
+    })
+})
+
+function Hello(props) {
+    return React.DOM.div(null,
+        React.DOM.pre(
+          {
+              onClick: () => props.state.incrClick(),
+              onMouseOver: () => props.state.incrMouseOver(),
+              onMouseOut: () => props.state.incrMouseOut()
+          }, 
+          props.state.total),
+        React.DOM.button(
+          {
+            onClick: () => props.state.reset()
+          },
+          'RESET'))
+}
+
+ReactDOM.render(e(Hello), document.body)
+</script>
