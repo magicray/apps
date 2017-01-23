@@ -13,29 +13,60 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.15.3/axios.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
 <script src="https://unpkg.com/mobx@3.0.1/lib/mobx.umd.min.js"></script>
-<script src="https://unpkg.com/mobx-react@4.1.0/index.js"></script>
+<script src="https://unpkg.com/mobx-react@4.1.0/index.min.js"></script>
 
 <body><script>
-function getMobXComponentWrapper(state) {
-    for(var k in state) {
-        if('function' !== typeof(state[k]))
-            continue
-
-        state[k] = mobx.action(state[k])
-    }
+function App(state) {
+    for(var k in state)
+        if('function' === typeof(state[k]))
+            state[k] = mobx.action(state[k])
 
     state = mobx.observable(state)
 
-    return function(component) {
+    function decorator(component) {
         return React.createElement(
             mobxReact.observer(component),
-           {state})
+            {state})
     }
+
+    const routes = {}
+
+    function addRoute(route, component) {
+        routes[route] = decorator(component)
+    }
+
+    function render() {
+        return React.createElement(
+            class extends React.Component {
+                componentDidMount() {
+                    window.onhashchange = () => this.setState({})
+                }
+
+                render() {
+                    const a = document.createElement('a')
+                    a.href = window.location
+
+                    return routes[a.hash? a.hash.slice(2): '']
+                }
+            })
+    }
+
+    function mount(divId) {
+        let div = document.getElementById(divId)
+        if(undefined == divId) {
+            div = document.createElement('div')
+            document.body.appendChild(div)
+        }
+
+        ReactDOM.render(render(), div)
+    }
+
+    return {render, decorator, addRoute, mount}
 }
 </script></body>
 
 <script>
-const e = getMobXComponentWrapper({
+const app = App({
     timestamp: null,
     nClicks: 0,
     nMouseOver: 0,
@@ -71,31 +102,39 @@ const e = getMobXComponentWrapper({
     },
 
     timer() {
-        this.timestamp = 'timer started'
-        setInterval(() => this.timestamp = new Date(), 1000)
+        if(null === this.timestamp) {
+            this.timestamp = 'timer started'
+            setInterval(() => this.timestamp = new Date(), 1000)
+        }
     }
 })
 
-function Hello(props) {
-    return React.DOM.div({className: 'container'},
-        React.DOM.pre(
-            {
-                onClick: () => props.state.incrClick(),
-                onMouseOver: () => props.state.incrMouseOver(),
-                onMouseOut: () => props.state.incrMouseOut()
-            },
+function Counters(props) {
+    const {div, pre, button, a} = React.DOM
+
+    return div({className: 'container'},
+        pre({
+            onClick: () => props.state.incrClick(),
+            onMouseOver: () => props.state.incrMouseOver(),
+            onMouseOut: () => props.state.incrMouseOut()},
             props.state.total),
-        React.DOM.button(
-            {
-              onClick: () => props.state.reset()
-            },
+        button({
+            onClick: () => props.state.reset()},
             'RESET'),
-        React.DOM.button(
-            {
-              onClick: () => props.state.timer()
-            },
-            'TIMER'))
+        button({
+            onClick: () => props.state.timer()},
+            'TIMER'),
+        a({
+            href: '#/props'},
+            'PROPS'))
 }
 
-ReactDOM.render(e(Hello), document.body)
+function Props(props) {
+    return React.DOM.div({className: 'container'},
+        React.DOM.pre(null, JSON.stringify(mobx.toJS(props.state), null, 4)))
+}
+
+app.addRoute('', Counters)
+app.addRoute('props', Props)
+app.mount()
 </script>
