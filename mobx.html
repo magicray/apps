@@ -16,7 +16,7 @@
 <script src="https://unpkg.com/mobx-react@4.1.0/index.js"></script>
 
 <body><script>
-function mobxWrapper(state) {
+function getMobXComponentWrapper(state) {
     for(var k in state) {
         if('function' !== typeof(state[k]))
             continue
@@ -35,7 +35,8 @@ function mobxWrapper(state) {
 </script></body>
 
 <script>
-const e  = mobxWrapper({
+const e = getMobXComponentWrapper({
+    timestamp: null,
     nClicks: 0,
     nMouseOver: 0,
     nMouseOut: 0,
@@ -45,6 +46,7 @@ const e  = mobxWrapper({
               Clicks: this.nClicks,
               MouseOver: this.nMouseOver,
               MouseOut: this.nMouseOut,
+              timestamp: this.timestamp,
               Total: this.nClicks + this.nMouseOver + this.nMouseOut
           }, null, 4)
       
@@ -66,11 +68,16 @@ const e  = mobxWrapper({
       this.nClicks = 0
       this.nMouseOver = 0
       this.nMouseOut = 0
+    },
+
+    timer() {
+        this.timestamp = 'timer started'
+        setInterval(() => this.timestamp = new Date(), 1000)
     }
 })
 
 function Hello(props) {
-    return React.DOM.div(null,
+    return React.DOM.div({className: 'container'},
         React.DOM.pre(
             {
                 onClick: () => props.state.incrClick(),
@@ -82,7 +89,12 @@ function Hello(props) {
             {
               onClick: () => props.state.reset()
             },
-            'RESET'))
+            'RESET'),
+        React.DOM.button(
+            {
+              onClick: () => props.state.timer()
+            },
+            'TIMER'))
 }
 
 ReactDOM.render(e(Hello), document.body)
