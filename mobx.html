@@ -93,6 +93,7 @@ function Props(props) {
     const {params: {index}, store} = props
 
     const js = mobx.toJS(store.counters[index])
+    js.timestamp = store.timestamp
 
     return React.DOM.div({className: 'container'},
         React.DOM.pre(null, JSON.stringify(js, null, 4)))
