@@ -48,7 +48,7 @@ function App(store) {
                     const a = document.createElement('a')
                     a.href = window.location
 
-                    return routes[a.hash? a.hash.slice(2): '']
+                    return routes[a.hash? a.hash.slice(1): '']
                 }
             })
 
@@ -89,9 +89,7 @@ const {store, wrap, route, render} = App({
     }
 })
 
-function Props(props) {
-    const {params: {index}, store} = props
-
+function Props({params: {index}, store}) {
     const js = mobx.toJS(store.counters[index])
     js.timestamp = store.timestamp
 
@@ -99,9 +97,7 @@ function Props(props) {
         React.DOM.pre(null, JSON.stringify(js, null, 4)))
 }
 
-function Counters(props) {
-    const {params: {index}, store} = props
-
+function Counters({params: {index}, store}) {
     const text = JSON.stringify({
         Clicks: store.counters[index].clicks,
         MouseOver: store.counters[index].mouseOver,
@@ -112,15 +108,15 @@ function Counters(props) {
 
     return div({className: 'container'},
         pre({
-            onClick: () => props.store.incrClick(index),
-            onMouseOver: () => props.store.incrMouseOver(index),
-            onMouseOut: () => props.store.incrMouseOut(index)},
+            onClick: () => store.incrClick(index),
+            onMouseOver: () => store.incrMouseOver(index),
+            onMouseOut: () => store.incrMouseOut(index)},
             text),
         button({
-            onClick: () => props.store.reset(index)},
+            onClick: () => store.reset(index)},
             'RESET'),
         a({
-            href: '#/props'},
+            href: '#props'},
             'PROPS'))
 }
 
