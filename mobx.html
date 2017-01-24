@@ -16,27 +16,29 @@
 <script src="https://unpkg.com/mobx-react@4.1.0/index.min.js"></script>
 
 <body><script>
-function App(state) {
-    for(var k in state)
-        if('function' === typeof(state[k]))
-            state[k] = mobx.action(state[k])
+function App(store) {
+    mobx.useStrict(true)
 
-    state = mobx.observable(state)
+    for(var k in store)
+        if('function' === typeof(store[k]))
+            store[k] = mobx.action(store[k])
 
-    function decorator(component) {
+    store = mobx.observable(store)
+
+    function wrap(component, params) {
         return React.createElement(
             mobxReact.observer(component),
-            {state})
+            {store, params})
     }
 
     const routes = {}
 
-    function addRoute(route, component) {
-        routes[route] = decorator(component)
+    function route(hash, component) {
+        routes[hash? hash: ''] = wrap(component)
     }
 
-    function render() {
-        return React.createElement(
+    function render(div) {
+        const elem = React.createElement(
             class extends React.Component {
                 componentDidMount() {
                     window.onhashchange = () => this.setState({})
@@ -49,92 +51,91 @@ function App(state) {
                     return routes[a.hash? a.hash.slice(2): '']
                 }
             })
+
+        return div? ReactDOM.render(elem, div): elem
     }
 
-    function mount(divId) {
-        let div = document.getElementById(divId)
-        if(undefined == divId) {
-            div = document.createElement('div')
-            document.body.appendChild(div)
-        }
-
-        ReactDOM.render(render(), div)
-    }
-
-    return {render, decorator, addRoute, mount}
+    return {store, wrap, route, render}
 }
 </script></body>
 
 <script>
-const app = App({
-    timestamp: null,
-    nClicks: 0,
-    nMouseOver: 0,
-    nMouseOut: 0,
+const {store, wrap, route, render} = App({
+    timestamp: 'not fetched yet',
+
+    counters: [
+        {clicks: 0, mouseOver: 0, mouseOut: 0},
+        {clicks: 0, mouseOver: 0, mouseOut: 0}
+    ],
                               
-    get total() {
-      return JSON.stringify({
-              Clicks: this.nClicks,
-              MouseOver: this.nMouseOver,
-              MouseOut: this.nMouseOut,
-              timestamp: this.timestamp,
-              Total: this.nClicks + this.nMouseOver + this.nMouseOut
-          }, null, 4)
-      
-    },
-  
-    incrClick() {
-        this.nClicks++
+    incrClick(i) {
+        this.counters[i].clicks++
     },
 
-    incrMouseOver() {
-        this.nMouseOver++
+    incrMouseOver(i) {
+        this.counters[i].mouseOver++
     },
 
-    incrMouseOut() {
-        this.nMouseOut++
+    incrMouseOut(i) {
+        this.counters[i].mouseOut++
     },
 
-    reset() {
-      this.nClicks = 0
-      this.nMouseOver = 0
-      this.nMouseOut = 0
+    reset(i) {
+      this.counters[i] = {clicks: 0, mouseOver: 0, mouseOut: 0}
     },
 
-    timer() {
-        if(null === this.timestamp) {
-            this.timestamp = 'timer started'
-            setInterval(() => this.timestamp = new Date(), 1000)
-        }
+    setTimestamp(timestamp) {
+        this.timestamp = timestamp
     }
 })
 
+function Props(props) {
+    const {params: {index}, store} = props
+
+    const js = mobx.toJS(store.counters[index])
+
+    return React.DOM.div({className: 'container'},
+        React.DOM.pre(null, JSON.stringify(js, null, 4)))
+}
+
 function Counters(props) {
+    const {params: {index}, store} = props
+
+    const text = JSON.stringify({
+        Clicks: store.counters[index].clicks,
+        MouseOver: store.counters[index].mouseOver,
+        MouseOut: store.counters[index].mouseOut,
+        timestamp: store.timestamp}, null, 4)
+      
     const {div, pre, button, a} = React.DOM
 
     return div({className: 'container'},
         pre({
-            onClick: () => props.state.incrClick(),
-            onMouseOver: () => props.state.incrMouseOver(),
-            onMouseOut: () => props.state.incrMouseOut()},
-            props.state.total),
+            onClick: () => props.store.incrClick(index),
+            onMouseOver: () => props.store.incrMouseOver(index),
+            onMouseOut: () => props.store.incrMouseOut(index)},
+            text),
         button({
-            onClick: () => props.state.reset()},
+            onClick: () => props.store.reset(index)},
             'RESET'),
-        button({
-            onClick: () => props.state.timer()},
-            'TIMER'),
         a({
             href: '#/props'},
             'PROPS'))
 }
 
-function Props(props) {
+route('props', function(props) {
     return React.DOM.div({className: 'container'},
-        React.DOM.pre(null, JSON.stringify(mobx.toJS(props.state), null, 4)))
-}
+        wrap(Props, {index: 0}),
+        wrap(Props, {index: 1}))
+})
 
-app.addRoute('', Counters)
-app.addRoute('props', Props)
-app.mount()
+route(null, function(props) {
+    return React.DOM.div({className: 'container'},
+        wrap(Counters, {index: 0}),
+        wrap(Counters, {index: 1}))
+})
+
+render(document.body)
+
+setInterval(() => store.setTimestamp(new Date()), 1000)
 </script>
