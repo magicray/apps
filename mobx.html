@@ -25,16 +25,21 @@ function App(store) {
 
     store = mobx.observable(store)
 
-    function wrap(component, params) {
+    function decorator(component, param) {
         return React.createElement(
             mobxReact.observer(component),
-            {store, params})
+            {store, param, decorator})
     }
 
     const routes = {}
 
     function route(hash, component) {
-        routes[hash? hash: ''] = wrap(component)
+        if(undefined === component) {
+            component = hash
+            hash = ''
+        }
+
+        routes[hash] = decorator(component)
     }
 
     function render(div) {
@@ -55,12 +60,12 @@ function App(store) {
         return div? ReactDOM.render(elem, div): elem
     }
 
-    return {store, wrap, route, render}
+    return {store, route, render}
 }
 </script></body>
 
 <script>
-const {store, wrap, route, render} = App({
+const app = App({
     timestamp: 'not fetched yet',
 
     counters: [
@@ -89,50 +94,54 @@ const {store, wrap, route, render} = App({
     }
 })
 
-function Props({params: {index}, store}) {
-    const js = mobx.toJS(store.counters[index])
+function Props({param, store}) {
+    const js = mobx.toJS(store.counters[param])
     js.timestamp = store.timestamp
 
     return React.DOM.div({className: 'container'},
         React.DOM.pre(null, JSON.stringify(js, null, 4)))
 }
 
-function Counters({params: {index}, store}) {
+function Counters({param, store}) {
     const text = JSON.stringify({
-        Clicks: store.counters[index].clicks,
-        MouseOver: store.counters[index].mouseOver,
-        MouseOut: store.counters[index].mouseOut,
+        Clicks: store.counters[param].clicks,
+        MouseOver: store.counters[param].mouseOver,
+        MouseOut: store.counters[param].mouseOut,
         timestamp: store.timestamp}, null, 4)
       
     const {div, pre, button, a} = React.DOM
 
     return div({className: 'container'},
         pre({
-            onClick: () => store.incrClick(index),
-            onMouseOver: () => store.incrMouseOver(index),
-            onMouseOut: () => store.incrMouseOut(index)},
+            onClick: () => store.incrClick(param),
+            onMouseOver: () => store.incrMouseOver(param),
+            onMouseOut: () => store.incrMouseOut(param)},
             text),
         button({
-            onClick: () => store.reset(index)},
+            onClick: () => store.reset(param)},
             'RESET'),
         a({
             href: '#props'},
             'PROPS'))
 }
 
-route('props', function(props) {
+app.route('props', function(props) {
+    const d = props.decorator
+
     return React.DOM.div({className: 'container'},
-        wrap(Props, {index: 0}),
-        wrap(Props, {index: 1}))
+        d(Props, 0),
+        d(Props, 1))
 })
 
-route(null, function(props) {
+app.route(function(props) {
+    const d = props.decorator
+
     return React.DOM.div({className: 'container'},
-        wrap(Counters, {index: 0}),
-        wrap(Counters, {index: 1}))
+        d(Counters, 0),
+        d(Counters, 1))
 })
 
-render(document.body)
+app.render(document.body)
 
-setInterval(() => store.setTimestamp(new Date()), 1000)
+setInterval(() => app.store.setTimestamp(new Date()), 1000)
 </script>
