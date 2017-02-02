@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name = "viewport"
+      content = "width = device-width,
+                 initial-scale = 1.0,
+                 maximum-scale = 1.0,
+                 user-scalable = no">
+
+<link rel="stylesheet"
+      href="https://unpkg.com/bootstrap@3.3.7/dist/css/bootstrap.min.css">
+<script src="https://unpkg.com/preact@7.1.0/dist/preact.js"></script>
+
+<body><script>
+function App(store) {
+    const routes = {}
+    
+    let root = null
+    for(var f in store) {
+        if('function' === typeof(store[f])) {
+            const func = store[f]
+            store[f] = function() {
+                func.apply(store, arguments)
+                root.setState({})
+            }
+        }
+    }
+    
+    function h(component, param) {
+        if('string' === typeof(component))
+          return preact.h(...arguments)
+
+        return preact.h(component, {store, param, h})
+    }
+
+    function route(hash, component) {
+        if(undefined === component) {
+            component = hash
+            hash = ''
+        }
+
+        routes[hash] = h(component)
+    }
+
+    function render(div) {
+        const elem = preact.h(
+            class extends preact.Component {
+                componentDidMount() {
+                    root = this
+                    window.onhashchange = () => this.setState({})
+                }
+
+                render() {
+                    const a = document.createElement('a')
+                    a.href = window.location
+
+                    return routes[a.hash? a.hash.slice(1): '']
+                }
+            })
+
+        return div? preact.render(elem, div): elem
+    }
+
+    return {store, route, render}
+}
+</script></body>
+
+<script>
+const app = App({
+    timestamp: 'not fetched yet',
+
+    counters: [
+        {clicks: 0, mouseOver: 0, mouseOut: 0},
+        {clicks: 0, mouseOver: 0, mouseOut: 0}
+    ],
+
+    incrClick(i) {
+        this.counters[i].clicks++
+    },
+
+    incrMouseOver(i) {
+        this.counters[i].mouseOver++
+    },
+
+    incrMouseOut(i) {
+        this.counters[i].mouseOut++
+    },
+
+    reset(i) {
+      this.counters[i] = {clicks: 0, mouseOver: 0, mouseOut: 0}
+    },
+
+    setTimestamp(timestamp) {
+        this.timestamp = timestamp
+    }
+})
+
+function Props({store, param, h}) {
+    const js = store.counters[param]
+    js.timestamp = store.timestamp
+
+    return h('div', {class: 'container'},
+            h('pre', null, JSON.stringify(js, null, 4)))
+}
+
+function Counters({store, param, h}) {
+    const text = JSON.stringify({
+        Clicks: store.counters[param].clicks,
+        MouseOver: store.counters[param].mouseOver,
+        MouseOut: store.counters[param].mouseOut,
+        timestamp: store.timestamp}, null, 4)
+
+    return h('div', {class: 'container'},
+            h('pre', {
+                onClick: () => store.incrClick(param),
+                onMouseOut: () => store.incrMouseOut(param),
+                onMouseOver: () => store.incrMouseOver(param)},
+                text),
+            h('button', {
+                onClick: () => store.reset(param)},
+                'RESET'),
+            h('a', {
+                href: '#props'},
+                'PROPS'))
+}
+
+app.route('props', function({store, param, h}) {
+    return h('div', {class: 'container'},
+            h(Props, 0),
+            h(Props, 1))
+})
+
+app.route(function({store, param, h}) {
+  return h('div', {class: 'container'},
+          h(Counters, 0),
+          h(Counters, 1))
+})
+
+app.render(document.body)
+
+setInterval(() => app.store.setTimestamp(new Date()), 1000)
+</script>
