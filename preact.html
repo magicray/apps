@@ -8,31 +8,22 @@
 
 <link rel="stylesheet"
       href="https://unpkg.com/bootstrap@3.3.7/dist/css/bootstrap.min.css">
-<script src="https://unpkg.com/preact@7.1.0/dist/preact.js"></script>
+<script src="https://unpkg.com/preact@7.1.0/dist/preact.min.js"></script>
 
 <body><script>
-function App(store) {
-    const routes = {}
-    
+function App(state) {
     let root = null
-    for(var f in store) {
-        if('function' === typeof(store[f])) {
-            const func = store[f]
-            store[f] = function() {
-                func.apply(store, arguments)
-                root.setState({})
-            }
-        }
-    }
-    
+    const routes = {}
+    const ret = {state, actions: {}}
+
     function h(component, param) {
         if('string' === typeof(component))
-          return preact.h(...arguments)
+            return preact.h(...arguments)
 
-        return preact.h(component, {store, param, h})
+        return preact.h(component, {state, actions: ret.actions, param, h})
     }
 
-    function route(hash, component) {
+    ret.route = (hash, component) => {
         if(undefined === component) {
             component = hash
             hash = ''
@@ -41,7 +32,15 @@ function App(store) {
         routes[hash] = h(component)
     }
 
-    function render(div) {
+    ret.render = (div) => {
+        for(var f in ret) {
+            const func = ret[f]
+            ret.actions[f] = function() {
+                func.apply(state, arguments)
+                root.setState({})
+            }
+        }
+
         const elem = preact.h(
             class extends preact.Component {
                 componentDidMount() {
@@ -53,14 +52,14 @@ function App(store) {
                     const a = document.createElement('a')
                     a.href = window.location
 
-                    return routes[a.hash? a.hash.slice(1): '']
+                    return routes[a.hash? a.hash: '']
                 }
             })
 
         return div? preact.render(elem, div): elem
     }
 
-    return {store, route, render}
+    return ret
 }
 </script></body>
 
@@ -71,71 +70,67 @@ const app = App({
     counters: [
         {clicks: 0, mouseOver: 0, mouseOut: 0},
         {clicks: 0, mouseOver: 0, mouseOut: 0}
-    ],
-
-    incrClick(i) {
-        this.counters[i].clicks++
-    },
-
-    incrMouseOver(i) {
-        this.counters[i].mouseOver++
-    },
-
-    incrMouseOut(i) {
-        this.counters[i].mouseOut++
-    },
-
-    reset(i) {
-      this.counters[i] = {clicks: 0, mouseOver: 0, mouseOut: 0}
-    },
-
-    setTimestamp(timestamp) {
-        this.timestamp = timestamp
-    }
+    ]
 })
 
-function Props({store, param, h}) {
-    const js = store.counters[param]
-    js.timestamp = store.timestamp
+app.incrClick = function(i) {
+    this.counters[i].clicks++
+}
+
+app.incrMouseOver = function(i) {
+    this.counters[i].mouseOver++
+}
+
+app.incrMouseOut = function(i) {
+    this.counters[i].mouseOut++
+}
+
+app.reset = function(i) {
+  this.counters[i] = {clicks: 0, mouseOver: 0, mouseOut: 0}
+}
+
+app.setTimestamp = function(timestamp) {
+    this.timestamp = timestamp
+}
+
+function Props({state, actions, param, h}) {
+    const js = state.counters[param]
+    js.timestamp = state.timestamp
 
     return h('div', {class: 'container'},
             h('pre', null, JSON.stringify(js, null, 4)))
 }
 
-function Counters({store, param, h}) {
+function Counters({state, actions, param, h}) {
     const text = JSON.stringify({
-        Clicks: store.counters[param].clicks,
-        MouseOver: store.counters[param].mouseOver,
-        MouseOut: store.counters[param].mouseOut,
-        timestamp: store.timestamp}, null, 4)
+        Clicks: state.counters[param].clicks,
+        MouseOut: state.counters[param].mouseOut,
+        MouseOver: state.counters[param].mouseOver,
+        timestamp: state.timestamp}, null, 4)
 
     return h('div', {class: 'container'},
             h('pre', {
-                onClick: () => store.incrClick(param),
-                onMouseOut: () => store.incrMouseOut(param),
-                onMouseOver: () => store.incrMouseOver(param)},
+                onClick: () => actions.incrClick(param),
+                onMouseOut: () => actions.incrMouseOut(param),
+                onMouseOver: () => actions.incrMouseOver(param)},
                 text),
-            h('button', {
-                onClick: () => store.reset(param)},
-                'RESET'),
-            h('a', {
-                href: '#props'},
-                'PROPS'))
+            h('button', {onClick: () => actions.reset(param)}, 'RESET'),
+            h('a', {href: '#props'}, 'PROPS'))
 }
 
-app.route('props', function({store, param, h}) {
-    return h('div', {class: 'container'},
-            h(Props, 0),
-            h(Props, 1))
-})
+app.route('#props', ({h}) =>
+    h('div', {class: 'container'},
+        h(Props, 0),
+        h(Props, 1))
+)
 
-app.route(function({store, param, h}) {
-  return h('div', {class: 'container'},
-          h(Counters, 0),
-          h(Counters, 1))
-})
+app.route(({h}) =>
+    h('div', {class: 'container'},
+        h(Counters, 0),
+        h(Counters, 1))
+)
 
 app.render(document.body)
 
-setInterval(() => app.store.setTimestamp(new Date()), 1000)
+setInterval(() => app.actions.setTimestamp(new Date()), 1000)
 </script>
