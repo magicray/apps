@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name = "viewport"
+      content = "width = device-width,
+                 initial-scale = 1.0,
+                 maximum-scale = 1.0,
+                 user-scalable = no">
+
+<script src="http://unpkg.com/mithril/mithril.js"></script>
+<link rel="stylesheet"
+      href="https://unpkg.com/bootstrap@3.3.7/dist/css/bootstrap.min.css">
+
+<body/>
+
+<script>
+var count = 0
+
+var Hello = {
+    view: function() {
+        return m("div.container", [
+            m("h1", "Table"),
+            m("button", {onclick: function() {count++}}, count + " clicks"),
+        ])
+    }
+}
+
+m.mount(document.body, Hello)
+</script>
