@@ -1,0 +1,150 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<script src="https://unpkg.com/react/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/react-bootstrap@next/dist/react-bootstrap.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+/>
+<script>
+const REFRESH_ALL = {}
+function refresh_all() {
+    console.log('refresh_all')
+    for(const id in REFRESH_ALL)
+        REFRESH_ALL[id]()
+}
+
+window.addEventListener('hashchange', refresh_all)
+window.addEventListener('resize', refresh_all)
+
+function mount(id, app, props) {
+    function refresh() {
+        var msec = (new Date()).getTime()
+
+        if(null === document.getElementById(id)) {
+            const node = document.createElement('div')
+            node.setAttribute('id', id)
+            document.body.appendChild(node)
+        }
+
+        ReactDOM.render(
+            React.createElement(page, props),
+            document.getElementById(id))
+        
+        msec = (new Date()).getTime() - msec
+        if(msec > 20)
+            console.log('refresh(' + id + ') msec(' + msec + ')')
+    }
+    
+    const page = app(refresh)
+    REFRESH_ALL[id] = refresh
+    refresh()
+}
+</script>
+</head>
+<body></body>
+<script>
+function location_hash() {
+    return location.hash? location.hash.substring(1): ''
+}
+
+function Calculator(refresh) {
+    var color = 'white'
+    var expression = 'Type some maths expression'
+
+    function updateExpression(expr) {
+        expression = expr
+        refresh()
+    }
+
+    function setColor(c) {
+        color = c
+        refresh()
+    }
+
+    function Label(props) {
+        var value = expression
+    
+        try {
+            value = eval(value)
+        } catch(error) {
+        }
+
+        return React.createElement('div', {}, value)
+    }
+
+    function Text(props) {
+        return React.createElement('input', {type: 'text',
+            onChange: (e) => updateExpression(e.target.value)})
+    }
+
+    function Page(props) {
+        if(location_hash() == 'Clocks')
+            return React.createElement('div', {}, '')
+
+        return React.createElement(ReactBootstrap.Container,
+            {
+                onMouseOver: e => setColor('lightgrey'),
+                onMouseOut: e => setColor('white'),
+                style: {backgroundColor: color}
+            },
+            Label(props),
+            Text(props))
+    }
+
+    return Page
+}
+
+function Clock(refresh) {
+    const e = React.createElement
+
+    var color = 'red'
+
+    function setColor(c) {
+        color = c
+        refresh()
+    }
+
+    function Time(props) {
+        const today = new Date()
+
+        return e('div', 
+            {
+                onMouseOver: e => setColor('green'), 
+                style: {color: color}
+            },
+            today.getTime())
+    }
+
+    function Page(props) {
+        if(location_hash() == 'Calculators')
+            return React.createElement('div', {}, '')
+
+        return React.createElement(ReactBootstrap.Container, {},
+            Time(props))
+    }
+
+    return Page
+}
+
+function Links(refresh) {
+    const a = (text, href) => React.createElement('a', {href: href}, text)
+
+    function Page(props) {
+        return React.createElement(ReactBootstrap.Container, {},
+            a('Calculators', '#Calculators'),
+            a('Clocks', '#Clocks'),
+            a('Home', '#'))
+    }
+
+    return Page
+}
+
+mount('link', Links, {})
+mount('calc1', Calculator, {})
+mount('calc2', Calculator, {})
+setInterval(() => mount('clock1', Clock, {}), 1000)
+setInterval(() => mount('clock2', Clock, {}), 1000)
+</script></html>
