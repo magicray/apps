@@ -142,9 +142,78 @@ function Links(refresh) {
     return Page
 }
 
+function Location(refresh) {
+    const msg = 'Click here to get location'
+    let location = msg
+    
+    function GetLocation() {
+        if(msg != location) {
+            location = msg
+            return refresh()
+        }
+
+        navigator.geolocation.getCurrentPosition(function(pos){
+            location = JSON.stringify({
+                latitude: pos.coords.latitude,
+                longitude: pos.coords.longitude,
+                accuracy: pos.coords.accuracy}, null, 4)
+            
+            refresh()
+        })
+    }
+
+    function Page(props) {
+        return React.createElement(ReactBootstrap.Container, {},
+            React.createElement('pre',
+                {onClick: GetLocation},
+                location))
+    }
+
+    return Page
+}
+
+function Code(refresh) {
+    const url = 'https://magicray.github.io/apps/template.html'
+    const msg = 'Click here to fetch the source code'
+    let code = msg
+    
+    function FetchCode() {
+        if(code != msg) {
+            code = msg
+            return refresh()
+        }
+        
+        code = 'Fetching....'
+        refresh()
+
+        fetch(url)
+            .then(function(response){
+                response.text().then(function(text){
+                    code = text
+                    refresh()
+                })
+            })
+            .catch(function(err){
+                code = err
+                refresh()
+            })
+    }
+    
+    function Page(props) {
+        return React.createElement(ReactBootstrap.Container, {},
+            React.createElement('xmp',
+                {onClick: FetchCode},
+                code))
+    }
+
+    return Page
+}
+
 mount('link', Links, {})
 mount('calc1', Calculator, {})
 mount('calc2', Calculator, {})
 setInterval(() => mount('clock1', Clock, {}), 1000)
 setInterval(() => mount('clock2', Clock, {}), 1000)
+mount('geo', Location, {})
+mount('code', Code, {})
 </script></html>
