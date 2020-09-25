@@ -1,56 +1,61 @@
-<html>
-<head>
-<meta charset="UTF-8">
-<script src="https://unpkg.com/react/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/react-bootstrap@next/dist/react-bootstrap.min.js"></script>
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8" name="viewport"
+      content="width=device-width, initial-scale=1,
+               maximum-scale=1, user-scalable=no">
+<script src="https://unpkg.com/preact/dist/preact.min.js"></script>
 <link
   rel="stylesheet"
-  href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+  href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
 />
-<script>
-const REFRESH_ALL = {}
-function refresh_all() {
-    console.log('refresh_all')
-    for(const id in REFRESH_ALL)
-        REFRESH_ALL[id]()
-}
+<title>Hello, World!</title><script>
+const render = function () {
+    const REFRESH_ALL = {}
 
-window.addEventListener('hashchange', refresh_all)
-window.addEventListener('resize', refresh_all)
+    function refresh_all() {
+        for(const id in REFRESH_ALL)
+            REFRESH_ALL[id]()
+    }
 
-function mount(id, app, props) {
-    function refresh() {
-        var msec = (new Date()).getTime()
+    window.addEventListener('hashchange', refresh_all)
+    window.addEventListener('resize', refresh_all)
 
-        if(null === document.getElementById(id)) {
-            const node = document.createElement('div')
-            node.setAttribute('id', id)
-            document.body.appendChild(node)
+    return function(id, app, props) {
+        function refresh() {
+            var msec = (new Date()).getTime()
+
+            if(null === document.getElementById(id)) {
+                const node = document.createElement('div')
+                node.setAttribute('id', id)
+                document.body.appendChild(node)
+            }
+
+            preact.render(
+                preact.h(page, props),
+                document.getElementById(id))
+
+            msec = (new Date()).getTime() - msec
+            if(msec > 20)
+                console.log('refresh(' + id + ') msec(' + msec + ')')
         }
 
-        ReactDOM.render(
-            React.createElement(page, props),
-            document.getElementById(id))
-        
-        msec = (new Date()).getTime() - msec
-        if(msec > 20)
-            console.log('refresh(' + id + ') msec(' + msec + ')')
+        const page = app(refresh)
+        REFRESH_ALL[id] = refresh
+        refresh()
     }
-    
-    const page = app(refresh)
-    REFRESH_ALL[id] = refresh
-    refresh()
-}
-</script>
-</head>
-<body></body>
-<script>
+}()
+</script></head><body></body><script>
 function location_hash() {
     return location.hash? location.hash.substring(1): ''
 }
 
+function Container(props, ...children) {
+    return preact.h('div', {class: 'div container'},
+        preact.h('div', props, children))
+}
+
 function Calculator(refresh) {
+    const h = preact.h
+
     var color = 'white'
     var expression = 'Type some maths expression'
 
@@ -66,25 +71,25 @@ function Calculator(refresh) {
 
     function Label(props) {
         var value = expression
-    
+
         try {
             value = eval(value)
         } catch(error) {
         }
 
-        return React.createElement('div', {}, value)
+        return h('div', {}, value)
     }
 
     function Text(props) {
-        return React.createElement('input', {type: 'text',
-            onChange: (e) => updateExpression(e.target.value)})
+        return h('input', {type: 'text',
+            onkeyup: (e) => updateExpression(e.target.value)})
     }
 
-    function Page(props) {
+    return function(props) {
         if(location_hash() == 'Clocks')
-            return React.createElement('div', {}, '')
+            return h('div', {}, '')
 
-        return React.createElement(ReactBootstrap.Container,
+        return Container(
             {
                 onMouseOver: e => setColor('lightgrey'),
                 onMouseOut: e => setColor('white'),
@@ -93,12 +98,10 @@ function Calculator(refresh) {
             Label(props),
             Text(props))
     }
-
-    return Page
 }
 
 function Clock(refresh) {
-    const e = React.createElement
+    const h = preact.h
 
     var color = 'red'
 
@@ -110,42 +113,38 @@ function Clock(refresh) {
     function Time(props) {
         const today = new Date()
 
-        return e('div', 
+        return h('div',
             {
-                onMouseOver: e => setColor('green'), 
+                onmouseover: e => setColor('green'),
                 style: {color: color}
             },
             today.getTime())
     }
 
-    function Page(props) {
+    return function(props) {
         if(location_hash() == 'Calculators')
-            return React.createElement('div', {}, '')
+            return h('div', {}, '')
 
-        return React.createElement(ReactBootstrap.Container, {},
-            Time(props))
+        return Container({}, Time(props))
     }
-
-    return Page
 }
 
 function Links(refresh) {
-    const a = (text, href) => React.createElement('a', {href: href}, text)
+    const h = preact.h
+    const a = (text, href) => h('a', {href: href}, text)
 
-    function Page(props) {
-        return React.createElement(ReactBootstrap.Container, {},
+    return function(props) {
+        return Container({},
             a('Calculators', '#Calculators'),
             a('Clocks', '#Clocks'),
             a('Home', '#'))
     }
-
-    return Page
 }
 
 function Location(refresh) {
     const msg = 'Click here to get location'
     let location = msg
-    
+
     function GetLocation() {
         if(msg != location) {
             location = msg
@@ -157,32 +156,34 @@ function Location(refresh) {
                 latitude: pos.coords.latitude,
                 longitude: pos.coords.longitude,
                 accuracy: pos.coords.accuracy}, null, 4)
-            
+
             refresh()
         })
     }
 
-    function Page(props) {
-        return React.createElement(ReactBootstrap.Container, {},
-            React.createElement('pre',
-                {onClick: GetLocation},
-                location))
-    }
+    return function(props) {
+        const h = preact.h
 
-    return Page
+        return Container({},
+            h('pre',
+              {onClick: GetLocation},
+              location))
+    }
 }
 
 function Code(refresh) {
+    const h = preact.h
+
     const url = 'https://magicray.github.io/apps/template.html'
     const msg = 'Click here to fetch the source code'
     let code = msg
-    
+
     function FetchCode() {
         if(code != msg) {
             code = msg
             return refresh()
         }
-        
+
         code = 'Fetching....'
         refresh()
 
@@ -198,22 +199,18 @@ function Code(refresh) {
                 refresh()
             })
     }
-    
-    function Page(props) {
-        return React.createElement(ReactBootstrap.Container, {},
-            React.createElement('xmp',
-                {onClick: FetchCode},
-                code))
-    }
 
-    return Page
+    return function(props) {
+        return Container({},
+            h('pre', {onClick: FetchCode}, code))
+    }
 }
 
-mount('link', Links, {})
-mount('calc1', Calculator, {})
-mount('calc2', Calculator, {})
-setInterval(() => mount('clock1', Clock, {}), 1000)
-setInterval(() => mount('clock2', Clock, {}), 1000)
-mount('geo', Location, {})
-mount('code', Code, {})
+render(1, Links, {})
+render(2, Calculator, {})
+render(3, Calculator, {})
+setInterval(() => render(4, Clock, {}), 1000)
+setInterval(() => render(5, Clock, {}), 1000)
+render(6, Location, {})
+render(7, Code, {})
 </script></html>
