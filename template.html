@@ -1,7 +1,7 @@
 <!doctype html><html lang="en"><head>
 <meta charset="UTF-8" name="viewport"
       content="width=device-width, initial-scale=1,
-               maximum-scale=1, user-scalable=no">
+               maximum-scale=1, user-scalable=yes">
 <script src="https://unpkg.com/preact/dist/preact.min.js"></script>
 <link
   rel="stylesheet"
@@ -9,11 +9,11 @@
 />
 <title>Hello, World!</title><script>
 const render = function () {
-    const REFRESH_ALL = {}
+    const all_apps = {}
 
     function refresh_all() {
-        for(const id in REFRESH_ALL)
-            REFRESH_ALL[id]()
+        for(const id in all_apps)
+            all_apps[id]()
     }
 
     window.addEventListener('hashchange', refresh_all)
@@ -38,8 +38,8 @@ const render = function () {
                 console.log('refresh(' + id + ') msec(' + msec + ')')
         }
 
-        const page = app(refresh)
-        REFRESH_ALL[id] = refresh
+        const page = app(preact.h, refresh)
+        all_apps[id] = refresh
         refresh()
     }
 }()
@@ -48,13 +48,32 @@ function location_hash() {
     return location.hash? location.hash.substring(1): ''
 }
 
-function Container(props, ...children) {
-    return preact.h('div', {class: 'div container'},
-        preact.h('div', props, children))
+function Components(h) {
+    return {
+        Container: function(props, ...children) {
+            return h('div', {class: 'div container'},
+                h('div', props, children))
+        }
+    }
 }
 
-function Calculator(refresh) {
-    const h = preact.h
+// Links
+render(1, function(dom, refresh) {
+    const {Container} = Components(dom)
+
+    const a = (text, href) => dom('a', {href: href}, text)
+
+    return function(props) {
+        return dom('nav', {class: 'navbar navbar-default'},
+            a('Calculators', '#Calculators'),
+            a('Clocks', '#Clocks'),
+            a('Home', '#'))
+    }
+})
+
+// Calculator
+render(2, function(dom, refresh) {
+    const {Container} = Components(dom)
 
     var color = 'white'
     var expression = 'Type some maths expression'
@@ -77,17 +96,17 @@ function Calculator(refresh) {
         } catch(error) {
         }
 
-        return h('div', {}, value)
+        return dom('div', {}, value)
     }
 
     function Text(props) {
-        return h('input', {type: 'text',
+        return dom('input', {type: 'text',
             onkeyup: (e) => updateExpression(e.target.value)})
     }
 
     return function(props) {
         if(location_hash() == 'Clocks')
-            return h('div', {}, '')
+            return dom('div', {}, '')
 
         return Container(
             {
@@ -98,10 +117,11 @@ function Calculator(refresh) {
             Label(props),
             Text(props))
     }
-}
+})
 
-function Clock(refresh) {
-    const h = preact.h
+// Clock
+setInterval(() => render(5, function(dom, refresh) {
+    const {Container} = Components(dom)
 
     var color = 'red'
 
@@ -113,7 +133,7 @@ function Clock(refresh) {
     function Time(props) {
         const today = new Date()
 
-        return h('div',
+        return dom('div',
             {
                 onmouseover: e => setColor('green'),
                 style: {color: color}
@@ -123,25 +143,16 @@ function Clock(refresh) {
 
     return function(props) {
         if(location_hash() == 'Calculators')
-            return h('div', {}, '')
+            return dom('div', {}, '')
 
         return Container({}, Time(props))
     }
-}
+}), 1000)
 
-function Links(refresh) {
-    const h = preact.h
-    const a = (text, href) => h('a', {href: href}, text)
+// Location
+render(6, function(dom, refresh) {
+    const {Container} = Components(dom)
 
-    return function(props) {
-        return Container({},
-            a('Calculators', '#Calculators'),
-            a('Clocks', '#Clocks'),
-            a('Home', '#'))
-    }
-}
-
-function Location(refresh) {
     const msg = 'Click here to get location'
     let location = msg
 
@@ -162,17 +173,14 @@ function Location(refresh) {
     }
 
     return function(props) {
-        const h = preact.h
-
         return Container({},
-            h('pre',
-              {onClick: GetLocation},
-              location))
+            dom('pre', {onClick: GetLocation}, location))
     }
-}
+})
 
-function Code(refresh) {
-    const h = preact.h
+// Code
+render(7, function(dom, refresh) {
+    const {Container} = Components(dom)
 
     const url = 'https://magicray.github.io/apps/template.html'
     const msg = 'Click here to fetch the source code'
@@ -202,15 +210,7 @@ function Code(refresh) {
 
     return function(props) {
         return Container({},
-            h('pre', {onClick: FetchCode}, code))
+            dom('pre', {onClick: FetchCode}, code))
     }
-}
-
-render(1, Links, {})
-render(2, Calculator, {})
-render(3, Calculator, {})
-setInterval(() => render(4, Clock, {}), 1000)
-setInterval(() => render(5, Clock, {}), 1000)
-render(6, Location, {})
-render(7, Code, {})
+})
 </script></html>
