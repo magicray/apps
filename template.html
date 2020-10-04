@@ -1,13 +1,13 @@
 <!doctype html><html lang="en"><head>
 <meta charset="UTF-8" name="viewport"
       content="width=device-width, initial-scale=1,
-               maximum-scale=1, user-scalable=yes">
+               maximum-scale=1, user-scalable=no">
 <script src="https://unpkg.com/preact/dist/preact.min.js"></script>
 <link
   rel="stylesheet"
   href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
 />
-<title>Hello, World!</title><script>
+<title>Application template</title><script>
 const render = function () {
     const all_apps = {}
 
@@ -19,15 +19,26 @@ const render = function () {
     window.addEventListener('hashchange', refresh_all)
     window.addEventListener('resize', refresh_all)
 
+    function html() {
+        return Array.from(arguments).map(function(elem) {
+            return function(props, ...children) {
+                try {
+                    if(JSON.stringify(props)[0] == '{')
+                        return preact.h(elem, props, children)
+                } catch(err) {}
+
+                return preact.h(elem, {}, props, children)
+            }})
+    }
+
+    function Table(rows) {
+        const [tr, td, table] = html('tr', 'td', 'table')
+        return table(rows.map((row) => tr(row.map(cell => td(cell)))))
+    }
+
     return function(id, app, props) {
         function refresh() {
             var msec = (new Date()).getTime()
-
-            if(null === document.getElementById(id)) {
-                const node = document.createElement('div')
-                node.setAttribute('id', id)
-                document.body.appendChild(node)
-            }
 
             preact.render(
                 preact.h(page, props),
@@ -38,54 +49,64 @@ const render = function () {
                 console.log('refresh(' + id + ') msec(' + msec + ')')
         }
 
-        const page = app(preact.h, refresh)
+        const page = app({refresh, html, Table})
         all_apps[id] = refresh
         refresh()
     }
 }()
-</script></head><body></body><script>
-function location_hash() {
-    return location.hash? location.hash.substring(1): ''
-}
+</script></head><body><div id="root"></div><div id="clock"></div></body><script>
+render('root', function(ctx) {
+    const {dom, html, Table} = ctx
 
-function Components(h) {
-    return {
-        Container: function(props, ...children) {
-            return h('div', {class: 'div container'},
-                h('div', props, children))
-        }
+    const [a] = html('a')
+    const Item = (text) => a({href: '#' + text}, text)
+
+    const apps = {
+        Code: Code(ctx),
+        Location: Location(ctx),
+        Calculator: Calculator(ctx)
     }
-}
 
-// Links
-render(1, function(dom, refresh) {
-    const {Container} = Components(dom)
-
-    const a = (text, href) => dom('a', {href: href}, text)
+    let navbar = Object.keys(apps).map((key, index) => Item(key))
+    navbar.push(Item('Home'))
 
     return function(props) {
-        return dom('nav', {class: 'navbar navbar-default'},
-            a('Calculators', '#Calculators'),
-            a('Clocks', '#Clocks'),
-            a('Home', '#'))
+        const horizontal = window.innerHeight > window.innerWidth
+
+        const hash = location.hash? location.hash.substring(1): 'Home'
+        var show = Object.keys(apps).map((x, y) => apps[x]())
+        if(hash != 'Home')
+           show = apps[hash]()
+
+        if(horizontal) {
+            return Table([
+                [Table([navbar])],
+                [show]
+            ])
+        } else {
+            const menu = navbar.map(x => [x])
+            return Table([
+                [Table(menu), show]
+            ])
+        }
     }
 })
 
-// Calculator
-render(2, function(dom, refresh) {
-    const {Container} = Components(dom)
+function Calculator(ctx) {
+    const dom = ctx.h
+    const [Div, Input] = ctx.html('div', 'input')
 
     var color = 'white'
     var expression = 'Type some maths expression'
 
     function updateExpression(expr) {
         expression = expr
-        refresh()
+        ctx.refresh()
     }
 
     function setColor(c) {
         color = c
-        refresh()
+        ctx.refresh()
     }
 
     function Label(props) {
@@ -96,20 +117,19 @@ render(2, function(dom, refresh) {
         } catch(error) {
         }
 
-        return dom('div', {}, value)
+        return Div(value)
     }
 
     function Text(props) {
-        return dom('input', {type: 'text',
+        return Input({
+            type: 'text',
             onkeyup: (e) => updateExpression(e.target.value)})
     }
 
     return function(props) {
-        if(location_hash() == 'Clocks')
-            return dom('div', {}, '')
-
-        return Container(
+        return Div(
             {
+                class: 'container',
                 onMouseOver: e => setColor('lightgrey'),
                 onMouseOut: e => setColor('white'),
                 style: {backgroundColor: color}
@@ -117,11 +137,11 @@ render(2, function(dom, refresh) {
             Label(props),
             Text(props))
     }
-})
+}
 
-// Clock
-setInterval(() => render(5, function(dom, refresh) {
-    const {Container} = Components(dom)
+setInterval(() => render('clock', function(ctx) {
+    const {html, refresh} = ctx
+    const [Div] = html('div')
 
     var color = 'red'
 
@@ -133,7 +153,7 @@ setInterval(() => render(5, function(dom, refresh) {
     function Time(props) {
         const today = new Date()
 
-        return dom('div',
+        return Div(
             {
                 onmouseover: e => setColor('green'),
                 style: {color: color}
@@ -142,16 +162,13 @@ setInterval(() => render(5, function(dom, refresh) {
     }
 
     return function(props) {
-        if(location_hash() == 'Calculators')
-            return dom('div', {}, '')
-
-        return Container({}, Time(props))
+        return Div({}, Time(props))
     }
 }), 1000)
 
-// Location
-render(6, function(dom, refresh) {
-    const {Container} = Components(dom)
+function Location(ctx) {
+    const {refresh, html} = ctx
+    const [Pre] = html('pre')
 
     const msg = 'Click here to get location'
     let location = msg
@@ -173,14 +190,13 @@ render(6, function(dom, refresh) {
     }
 
     return function(props) {
-        return Container({},
-            dom('pre', {onClick: GetLocation}, location))
+        return Pre({onClick: GetLocation}, location)
     }
-})
+}
 
-// Code
-render(7, function(dom, refresh) {
-    const {Container} = Components(dom)
+function Code(ctx) {
+    const {html, refresh} = ctx
+    const [Pre] = html('pre')
 
     const url = 'https://magicray.github.io/apps/template.html'
     const msg = 'Click here to fetch the source code'
@@ -209,8 +225,7 @@ render(7, function(dom, refresh) {
     }
 
     return function(props) {
-        return Container({},
-            dom('pre', {onClick: FetchCode}, code))
+        return Pre({onClick: FetchCode}, code)
     }
-})
+}
 </script></html>
