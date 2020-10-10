@@ -7,58 +7,51 @@
   rel="stylesheet"
   href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
 />
-<title>Application template</title><script>
+<title>Application Template</title><script>
 const render = function () {
-    const all_apps = {}
+    const apps = {}
 
     function refresh_all() {
-        for(const id in all_apps)
-            all_apps[id]()
+        for(const id in apps)
+            apps[id]()
     }
 
     window.addEventListener('hashchange', refresh_all)
     window.addEventListener('resize', refresh_all)
 
-    function html() {
-        return Array.from(arguments).map(function(elem) {
-            return function(props, ...children) {
-                try {
-                    if(JSON.stringify(props)[0] == '{')
-                        return preact.h(elem, props, children)
-                } catch(err) {}
+    function html(elem, initialProps) {
+        return function(props, ...children) {
+            try {
+                if(JSON.stringify(props)[0] == '{')
+                    return preact.h(elem, {...initialProps, ...props}, children)
+            } catch(err) {}
 
-                return preact.h(elem, {}, props, children)
-            }})
-    }
-
-    function Table(rows) {
-        const [tr, td, table] = html('tr', 'td', 'table')
-        return table(rows.map((row) => tr(row.map(cell => td(cell)))))
+            return preact.h(elem, initialProps, props, children)
+        }
     }
 
     return function(id, app, props) {
         function refresh() {
-            var msec = (new Date()).getTime()
+            const t1 = (new Date()).getTime()
+            const dom = preact.h(page, props)
+            const t2 = (new Date()).getTime()
+            preact.render(dom, document.getElementById(id))
+            const t3 = (new Date()).getTime()
 
-            preact.render(
-                preact.h(page, props),
-                document.getElementById(id))
-
-            msec = (new Date()).getTime() - msec
-            if(msec > 20)
-                console.log('refresh(' + id + ') msec(' + msec + ')')
+            if(t3-t1 > 20)
+                console.log(id + '(' + (t2-t1) + ') render(' + (t3-t2) + ')')
         }
 
-        const page = app({refresh, html, Table})
-        all_apps[id] = refresh
+        const page = app({refresh, html})
+        apps[id] = refresh
         refresh()
     }
 }()
 </script></head><body><div id="root"></div><div id="clock"></div></body><script>
 render('root', function(ctx) {
-    const {dom, html, Table} = ctx
+    const {html, refresh} = ctx
 
-    const [a] = html('a')
+    const a = html('a')
     const Item = (text) => a({href: '#' + text}, text)
 
     const apps = {
@@ -71,49 +64,55 @@ render('root', function(ctx) {
     navbar.push(Item('Home'))
 
     return function(props) {
-        const horizontal = window.innerHeight > window.innerWidth
-
         const hash = location.hash? location.hash.substring(1): 'Home'
+
         var show = Object.keys(apps).map((x, y) => apps[x]())
         if(hash != 'Home')
            show = apps[hash]()
 
-        if(horizontal) {
-            return Table([
-                [Table([navbar])],
-                [show]
-            ])
-        } else {
-            const menu = navbar.map(x => [x])
-            return Table([
-                [Table(menu), show]
-            ])
+        function menuItem(text) {
+            const div = html('div', {style:`
+                padding: 10px;
+                background: lightgrey;
+            `})
+
+            const a = html('a')
+            return div(a({href: '#' + text}, text))
         }
+
+        const [tr, td, table] = ['tr', 'td', 'table'].map(html)
+
+        if(window.innerHeight > window.innerWidth)
+            return table(
+                tr(td(navbar.map(x => menuItem(x)))),
+                tr(td(show)))
+
+        return table(tr(td(navbar.map(x => menuItem(x))), td(show)))
     }
 })
 
 function Calculator(ctx) {
-    const dom = ctx.h
-    const [Div, Input] = ctx.html('div', 'input')
+    const {refresh, html} = ctx
+    const Div = html('div')
+    const Input = html('input')
 
     var color = 'white'
-    var expression = 'Type some maths expression'
+    var value = 'Type some matsh expression'
+    var expression = ''
 
     function updateExpression(expr) {
         expression = expr
-        ctx.refresh()
+        refresh()
     }
 
     function setColor(c) {
         color = c
-        ctx.refresh()
+        refresh()
     }
 
     function Label(props) {
-        var value = expression
-
         try {
-            value = eval(value)
+            value = eval(expression)
         } catch(error) {
         }
 
@@ -123,6 +122,7 @@ function Calculator(ctx) {
     function Text(props) {
         return Input({
             type: 'text',
+            value: expression,
             onkeyup: (e) => updateExpression(e.target.value)})
     }
 
@@ -141,7 +141,7 @@ function Calculator(ctx) {
 
 setInterval(() => render('clock', function(ctx) {
     const {html, refresh} = ctx
-    const [Div] = html('div')
+    const Div = html('div')
 
     var color = 'red'
 
@@ -168,7 +168,7 @@ setInterval(() => render('clock', function(ctx) {
 
 function Location(ctx) {
     const {refresh, html} = ctx
-    const [Pre] = html('pre')
+    const Pre = html('pre')
 
     const msg = 'Click here to get location'
     let location = msg
@@ -196,7 +196,7 @@ function Location(ctx) {
 
 function Code(ctx) {
     const {html, refresh} = ctx
-    const [Pre] = html('pre')
+    const Pre = html('pre')
 
     const url = 'https://magicray.github.io/apps/template.html'
     const msg = 'Click here to fetch the source code'
