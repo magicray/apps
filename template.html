@@ -3,9 +3,8 @@
       content="width=device-width, initial-scale=1,
                maximum-scale=1, user-scalable=no">
 <script src="https://unpkg.com/preact/dist/preact.min.js"></script>
-<link
-  rel="stylesheet"
-  href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+<link rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
 />
 <title>Application Template</title><script>
 const render = function () {
@@ -20,9 +19,11 @@ const render = function () {
     window.addEventListener('resize', refresh_all)
 
     function html(elem, initialProps) {
+	initialProps = undefined == initialProps? {} : initialProps
+
         return function(props, ...children) {
             try {
-                if(JSON.stringify(props)[0] == '{')
+                if(JSON.stringify(props)[0] == '{' && !('props' in props))
                     return preact.h(elem, {...initialProps, ...props}, children)
             } catch(err) {}
 
@@ -32,14 +33,8 @@ const render = function () {
 
     return function(id, app, props) {
         function refresh() {
-            const t1 = (new Date()).getTime()
             const dom = preact.h(page, props)
-            const t2 = (new Date()).getTime()
             preact.render(dom, document.getElementById(id))
-            const t3 = (new Date()).getTime()
-
-            if(t3-t1 > 20)
-                console.log(id + '(' + (t2-t1) + ') render(' + (t3-t2) + ')')
         }
 
         const page = app({refresh, html})
@@ -83,9 +78,8 @@ render('root', function(ctx) {
         const [tr, td, table] = ['tr', 'td', 'table'].map(html)
 
         if(window.innerHeight > window.innerWidth)
-            return table(
-                tr(td(navbar.map(x => menuItem(x)))),
-                tr(td(show)))
+	    return table(tr(td(navbar.map(x => menuItem(x)))),
+                            tr(td(show)))
 
         return table(tr(td(navbar.map(x => menuItem(x))), td(show)))
     }
