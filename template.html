@@ -1,26 +1,19 @@
-<!doctype html><html lang="en"><head>
-<meta charset="UTF-8" name="viewport"
-      content="width=device-width, initial-scale=1,
-               maximum-scale=1, user-scalable=no">
+<!doctype html><html lang="en">
+<head>
+<meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"/>
 <script src="https://unpkg.com/preact/dist/preact.min.js"></script>
-<link rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
-/>
-<title>Application Template</title><script>
+<title>Application Template</title>
+<script>
 const render = function () {
-    const apps = {}
+    const app_refresh = {}
 
-    function refresh_all() {
-        for(const id in apps)
-            apps[id]()
-    }
+    const refresh_all = () => Object.values(app_refresh).map(f => f())
 
-    window.addEventListener('hashchange', refresh_all)
     window.addEventListener('resize', refresh_all)
+    window.addEventListener('hashchange', refresh_all)
 
     function html(elem, initialProps) {
-	initialProps = undefined == initialProps? {} : initialProps
-
         return function(props, ...children) {
             try {
                 if(JSON.stringify(props)[0] == '{' && !('props' in props))
@@ -31,28 +24,26 @@ const render = function () {
         }
     }
 
-    return function(id, app, props) {
-        function refresh() {
-            const dom = preact.h(page, props)
-            preact.render(dom, document.getElementById(id))
+    return function(id, props, app) {
+        app_refresh[id] = function() {
+            preact.render(preact.h(page, props), document.getElementById(id))
         }
 
-        const page = app({refresh, html})
-        apps[id] = refresh
-        refresh()
+        const page = app(html, app_refresh[id])
+        app_refresh[id]()
     }
 }()
-</script></head><body><div id="root"></div><div id="clock"></div></body><script>
-render('root', function(ctx) {
-    const {html, refresh} = ctx
-
-    const a = html('a')
+</script>
+</head><body><div id="root"></div><div id="clock"></div></body>
+<script>
+render('root', {}, function(html, refresh) {
+    const [a, tr, td, table] = ['a', 'tr', 'td', 'table'].map(html)
     const Item = (text) => a({href: '#' + text}, text)
 
     const apps = {
-        Code: Code(ctx),
-        Location: Location(ctx),
-        Calculator: Calculator(ctx)
+        Code: Code(html, refresh),
+        Location: Location(html, refresh),
+        Calculator: Calculator(html, refresh)
     }
 
     let navbar = Object.keys(apps).map((key, index) => Item(key))
@@ -71,11 +62,8 @@ render('root', function(ctx) {
                 background: lightgrey;
             `})
 
-            const a = html('a')
             return div(a({href: '#' + text}, text))
         }
-
-        const [tr, td, table] = ['tr', 'td', 'table'].map(html)
 
         if(window.innerHeight > window.innerWidth)
 	    return table(tr(td(navbar.map(x => menuItem(x)))),
@@ -85,8 +73,7 @@ render('root', function(ctx) {
     }
 })
 
-function Calculator(ctx) {
-    const {refresh, html} = ctx
+function Calculator(html, refresh) {
     const Div = html('div')
     const Input = html('input')
 
@@ -133,8 +120,7 @@ function Calculator(ctx) {
     }
 }
 
-setInterval(() => render('clock', function(ctx) {
-    const {html, refresh} = ctx
+setInterval(() => render('clock', {}, function(html, refresh) {
     const Div = html('div')
 
     var color = 'red'
@@ -160,8 +146,7 @@ setInterval(() => render('clock', function(ctx) {
     }
 }), 1000)
 
-function Location(ctx) {
-    const {refresh, html} = ctx
+function Location(html, refresh) {
     const Pre = html('pre')
 
     const msg = 'Click here to get location'
@@ -188,8 +173,7 @@ function Location(ctx) {
     }
 }
 
-function Code(ctx) {
-    const {html, refresh} = ctx
+function Code(html, refresh) {
     const Pre = html('pre')
 
     const url = 'https://magicray.github.io/apps/template.html'
